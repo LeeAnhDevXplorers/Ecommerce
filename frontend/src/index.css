@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css');
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 62.5%;
+  line-height: 1.6rem;
+  font-family: 'Lato', sans-serif;
+}
+
+@media (min-width: 1300px) {
+  .container,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container-xl {
+    max-width: 1200px;
+  }
+}
+
+.hd {
+  font-size: 2.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.text-red {
+  color: red;
+}
+
+.container {
+  max-width: 1280px;
+}
+
+.cursor {
+  cursor: pointer;
+}
+
+.text-light {
+  color: #4b4747 !important;
+}
+
+.text-sml {
+  font-size: 1.4rem;
+}
+
+.btn-blue {
+  background-color: #ff6a00 !important;
+  color: #fff !important;
+  text-transform: capitalize !important;
+}
+
+.btn-big {
+  font-size: 1.8rem !important;
+  padding: 8px 18px !important;
+  min-width: auto !important;
+}
+
+.btn-round {
+  border-radius: 30px !important;
+}
+
+.productRow2 .productItem {
+  width: 24%;
+}
+
+.productItem:hover {
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+
+.productListings .productItem.four {
+  width: 19.65%;
+}
+.productListings .productItem.three {
+  width: 24.6%;
+}
+.productListings .productItem.two {
+  width: 33%;
+}
+.productListings .productItem.one {
+  width: 49.7%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.productListings .productItem.one .info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.productListings .productItem.one .info h4 {
+  font-size: 2rem;
+}
+
+.productListings .productItem.one .info span {
+  font-size: 1.8rem;
+}
+
+.MuiTabs-scrollButtons.Mui-disabled {
+  opacity: 0.3;
+}
+.filter-tabs{
+
+}
+.MuiButtonBase-root  {
+  font-size: 1.2rem !important;
+  color: #4b4747 !important;
+  font-weight: 600 !important;
+}
