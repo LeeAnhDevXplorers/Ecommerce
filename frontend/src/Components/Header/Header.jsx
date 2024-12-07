@@ -1,14 +1,8 @@
-import {
-  Avatar,
-  Divider,
-  ListItemIcon,
-  Menu,
-  MenuItem,
-} from '@mui/material/';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
+import Settings from '@mui/icons-material/Settings';
+import { Avatar, Divider, ListItemIcon, Menu, MenuItem } from '@mui/material/';
 import Button from '@mui/material/Button';
 import React, { useContext } from 'react';
 import { FaRegUser } from 'react-icons/fa';
@@ -32,11 +26,11 @@ const Header = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-    const logout = () => {
-      localStorage.clear();
-      setAnchorEl(null);
-      context.setisLogin(false)
-    };
+  const logout = () => {
+    localStorage.clear();
+    setAnchorEl(null);
+    context.setisLogin(false);
+  };
 
   return (
     <>
@@ -117,7 +111,10 @@ const Header = () => {
                           vertical: 'bottom',
                         }}
                       >
-                        <MenuItem onClick={handleClose} sx={{fontSize: "1.6rem"}}>
+                        <MenuItem
+                          onClick={handleClose}
+                          sx={{ fontSize: '1.6rem' }}
+                        >
                           <Avatar /> My account
                         </MenuItem>
                         <Divider />
@@ -145,7 +142,12 @@ const Header = () => {
 
                   {/*  */}
                   <div className="ml-auto cartTab d-flex align-items-center">
-                    <span className="price">$3.40</span>
+                    <span className="price">
+                      $
+                      {context.cartData
+                        ?.map((item) => parseInt(item.price) * item.quantity)
+                        .reduce((total, value) => total + value, 0)}
+                    </span>
                     <div className="position-relative d-flex align-items-center ml-2">
                       <Button className="circle">
                         <Link to={'/cart'}>
@@ -154,7 +156,7 @@ const Header = () => {
                         </Link>
                       </Button>
                       <span className="count d-flex align-items-center justify-content-center">
-                        1
+                        {context.cartData?.length}
                       </span>
                     </div>
                   </div>

@@ -3,8 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import './QuantityBox.css';
 const QuantityBox = (props) => {
-  const [inputVal, setInputVal] = useState(1);
+  console.log('Props in QuantityBox:', props);
 
+  const [inputVal, setInputVal] = useState(1);
+  useEffect(() => {
+    if (
+      props?.value !== undefined &&
+      props?.value !== null &&
+      props?.value !== ""
+    ) {
+      setInputVal(parseInt(props?.value));
+    }
+  }, [props.selectedQuantity])
   const minus = () => {
     if (inputVal > 0) {
       setInputVal(inputVal - 1);
@@ -16,9 +26,8 @@ const QuantityBox = (props) => {
   };
 
   useEffect(() => {
-    console.log('Calling selectItem with:', props.item, inputVal);
     props.quantity(inputVal);
-    props.selectItem(props.item, inputVal)
+    props.selectItem(props.item, inputVal);
   }, [inputVal]);
 
   return (

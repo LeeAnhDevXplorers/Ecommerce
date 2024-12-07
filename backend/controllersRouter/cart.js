@@ -14,6 +14,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/cound', async (req, res) => {
+  const cartItemsCount = await Cart.countDocuments();
+  if (!cartItemsCount) {
+    res.status(500).json({ success: false });
+  }
+
+  return res.status(200).json(cartItemsCount);
+});
+
+
 // Route tạo mới category với ảnh, giữ lại file trong thư mục 'uploads'
 router.post('/add', async (req, res) => {
   const cartItem = await Cart.find({ productId: req.body.productId });
@@ -78,9 +88,10 @@ router.delete('/:id', async (req, res) => {
   }
 });
 router.put('/:id', async (req, res) => {
-  const cartList = await Cart.findByIdAndUpdate(
-    req.query.id,
-    {
+  try {
+    // Kiểm tra xem ID có hợp lệ không
+    const { id } = req.params;
+    const updateData = {
       productTitle: req.body.productTitle,
       image: req.body.image,
       rating: req.body.rating,
@@ -89,18 +100,33 @@ router.put('/:id', async (req, res) => {
       subTotal: req.body.subTotal,
       productId: req.body.productId,
       userId: req.body.userId,
-    },
-    { new: true }
-  );
+    };
 
-  if (!cartList) {
+    // Cập nhật item trong Cart
+    const updatedCart = await Cart.findByIdAndUpdate(id, updateData, { new: true });
+
+    // Nếu không tìm thấy item
+    if (!updatedCart) {
+      return res.status(404).json({
+        success: false,
+        message: 'Cart item not found',
+      });
+    }
+
+    // Trả về kết quả thành công
+    return res.status(200).json({
+      success: true,
+      message: 'Cart item updated successfully',
+      data: updatedCart,
+    });
+  } catch (err) {
+    console.error('Error updating cart item:', err.message);
     return res.status(500).json({
-      message: 'Cart item not update',
       success: false,
+      message: 'An error occurred while updating the cart item',
+      error: err.message,
     });
   }
-
-  res.send(cartList);
 });
 
 export default router;

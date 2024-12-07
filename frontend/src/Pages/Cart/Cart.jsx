@@ -1,24 +1,40 @@
 import { Button } from '@mui/material';
 import Rating from '@mui/material/Rating';
 import React, { useContext, useEffect, useState } from 'react';
-import { FaBox } from 'react-icons/fa';
-import { FaCartShopping } from 'react-icons/fa6';
+
+import { IoBagCheckOutline } from 'react-icons/io5';
 import { MdDeleteForever } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import { MyContext } from '../../App';
 import QuantityBox from '../../Components/QuantityBox/QuantityBox';
-import { editData, fetchDataFromApi } from '../../utils/api';
+import { deleteData, editData, fetchDataFromApi } from '../../utils/api';
 import './Cart.css';
 const Cart = () => {
   const context = useContext(MyContext);
   const [cartData, setCartData] = useState([]);
   const [clicked, setClicked] = useState(false);
   const [productQuantity, setProductQuantity] = useState();
+  const [selectedQuantity, setSelectedQuantity] = useState();
   let [cartFields, setCartFields] = useState({});
+  const [changeQuantity, setChangeQuantity] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   const quantity = (val) => {
     setProductQuantity(val);
+    setChangeQuantity(val);
+  };
+
+  const removeItem = (_id) => {
+    deleteData(`/api/cart/${_id}`).then((res) => {
+      context.setAlertBox({
+        open: true,
+        error: false,
+        msg: 'Xóa sản phẩm thành công',
+      });
+      fetchDataFromApi(`/api/cart`).then(setCartData);
+      context.getCartData()
+    });
+
   };
 
   const handleClick = () => {
@@ -31,40 +47,56 @@ const Cart = () => {
   useEffect(() => {
     fetchDataFromApi(`/api/cart`).then((res) => {
       setCartData(res);
+      setSelectedQuantity(res?.quantity);
     });
   }, []);
 
-  const selectItem = (item, quantityVal) => {
-    console.log('Select item called', item, quantityVal);
-    setIsLoading(true);
-    const user = JSON.parse(localStorage.getItem('user'));
+  function selectItem(item, quantityVal) {
+    if (changeQuantity !== 0) {
+      console.log('Item selected:', item);
+      if (!item || !quantityVal) {
+        console.error('Invalid item or quantity');
+        return;
+      }
 
-    cartFields.productTitle = item?.productTitle;
-    cartFields.image = item?.image;
-    cartFields.rating = item?.rating;
-    cartFields.price = item?.price;
-    cartFields.quantity = quantityVal;
-    cartFields.subTotal = parseInt(item?.price * quantityVal);
-    cartFields.productId = item?._id;
-    cartFields.userId = user?.userId;
+      setIsLoading(true);
 
-    editData(`/api/cart/${item?._id}`).then((res) => {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1500);
-    });
-  };
+      const user = JSON.parse(localStorage.getItem('user')) || {};
+      const cartFields = {
+        productTitle: item?.productTitle || '',
+        image: item?.image || '',
+        rating: item?.rating || 0,
+        price: item?.price || 0,
+        quantity: quantityVal || 0,
+        subTotal: parseInt(item?.price * quantityVal) || 0,
+        productId: item?._id || '',
+        userId: user?.userId || '',
+      };
+
+      editData(`/api/cart/${item?._id}`, cartFields)
+        .then((res) => {
+          setIsLoading(false);
+          fetchDataFromApi(`/api/cart`).then(setCartData);
+        })
+        .catch((error) => {
+          console.error('Error updating cart:', error);
+          setIsLoading(false);
+        });
+    }
+  }
+
+  // const selectItem = () => {};
+
   return (
     <>
-      {isLoading === true && <div className="loading"></div>}
-
       <section className="section cartPage">
         <div className="container">
           <div className="row align-items-center">
             <div className="col-md-9 pr-5">
               <h2 className="hd mb-2 mt-2">Giỏ hàng của bạn</h2>
               <p className="mb-4">
-                Có <b className="text-red">3</b> sản phẩm trong giỏ hàng của bạn
+                Có <b className="text-red">{cartData?.length}</b> sản phẩm trong
+                giỏ hàng của bạn
               </p>
 
               <div className="table-responsive">
@@ -81,9 +113,9 @@ const Cart = () => {
                   <tbody>
                     {cartData?.map((item, index) => {
                       return (
-                        <tr>
+                        <tr key={index}>
                           <td width="45%">
-                            <Link to="/product/1">
+                            <Link to={`/product/${item?.productId}`}>
                               <div className="d-flex align-items-center cartItemImgWrapper">
                                 <div className="imgWrapper">
                                   <img
@@ -112,11 +144,15 @@ const Cart = () => {
                               quantity={quantity}
                               item={item}
                               selectItem={selectItem}
+                              value={item?.quantity}
                             />
                           </td>
                           <td width="15%">${item?.subTotal}</td>
                           <td width="10%">
-                            <span className="remove cursor">
+                            <span
+                              className="remove cursor"
+                              onClick={() => removeItem(item?._id)}
+                            >
                               <MdDeleteForever />
                             </span>
                           </td>
@@ -133,7 +169,10 @@ const Cart = () => {
                 <div className="d-flex align-items-center mb-3">
                   <span>Subtotal</span>
                   <span className="ml-auto text-red font-weight-bold">
-                    $99.99
+                    $
+                    {cartData
+                      .map((item) => parseInt(item.price) * item.quantity)
+                      .reduce((total, value) => total + value, 0)}
                   </span>
                 </div>
                 <div className="d-flex align-items-center mb-3">
@@ -151,21 +190,20 @@ const Cart = () => {
                 <div className="d-flex align-items-center mb-3">
                   <span>Total</span>
                   <span className="ml-auto text-red font-weight-bold">
-                    $99.99
+                    $
+                    {cartData
+                      .map((item) => parseInt(item.price) * item.quantity)
+                      .reduce((total, value) => total + value, 0)}
                   </span>
                 </div>
                 <br />
                 <div className="d-flex align-items-center justify-content-center mt-3">
                   <Button
-                    className={`cart-btn ${clicked ? 'clicked' : ''}`}
+                    className="cart-btn btn-blue btn-big btn-round"
                     onClick={handleClick}
                   >
-                    <span className="btn-blue btn-lg btn-big btn-round add-to-cart">
-                      {clicked ? 'Thêm thành công' : 'Thêm vào giỏ hàng'}
-                    </span>
-                    {clicked && <span className="added">Thêm thành công</span>}
-                    <FaCartShopping className="icon1" />
-                    <FaBox className="icon2" />
+                    <IoBagCheckOutline />
+                    Thanh Toán
                   </Button>
                 </div>
               </div>
@@ -173,6 +211,7 @@ const Cart = () => {
           </div>
         </div>
       </section>
+      {isLoading === true && <div className="loading"></div>}
     </>
   );
 };

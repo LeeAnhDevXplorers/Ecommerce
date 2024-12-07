@@ -14,6 +14,7 @@ import { fetchDataFromApi } from '../../utils/api';
 import './ProductDetails.css';
 import Relatedproducts from './Relatedproducts/Relatedproducts';
 const ProductDetails = (props) => {
+  const [value, setValue] = React.useState(2);
   const context = useContext(MyContext);
   const [activeSize, setActiveSize] = useState(null);
   const [activeRam, setActiveRam] = useState(null);
@@ -22,6 +23,7 @@ const ProductDetails = (props) => {
   const [productData, setProductData] = useState([]);
   const [relatedProductData, setRelatedProductData] = useState([]);
   const [productQuantity, setProductQuantity] = useState();
+  const [review, setReview] = useState();
   let [cartFields, setCartFields] = useState({});
 
   const setRamActive = (index) => {
@@ -53,25 +55,20 @@ const ProductDetails = (props) => {
     setProductQuantity(val);
   };
 
+  const selectItem = () => {};
   const addtoCart = () => {
     let missingFields = [];
 
-    // Kiểm tra nếu sản phẩm yêu cầu `ram`
     if (productData?.ramName?.length > 0 && activeRam === null) {
       missingFields.push('ram');
     }
-
-    // Kiểm tra nếu sản phẩm yêu cầu `size`
     if (productData?.sizeName?.length > 0 && activeSize === null) {
       missingFields.push('size');
     }
-
-    // Kiểm tra nếu sản phẩm yêu cầu `weight`
     if (productData?.weightName?.length > 0 && activeWeight === null) {
       missingFields.push('cân nặng');
     }
 
-    // Nếu có trường chưa chọn, thông báo lỗi
     if (missingFields.length > 0) {
       context.setAlertBox({
         open: true,
@@ -80,8 +77,6 @@ const ProductDetails = (props) => {
       });
       return;
     }
-
-    // Tất cả các trường cần thiết đã được chọn
     const user = JSON.parse(localStorage.getItem('user'));
 
     cartFields.productTitle = productData?.name;
@@ -90,10 +85,9 @@ const ProductDetails = (props) => {
     cartFields.price = productData?.price;
     cartFields.quantity = productQuantity;
     cartFields.subTotal = parseInt(productData?.price * productQuantity);
-    cartFields.productId = productData?._id;
+    cartFields.productId = productData?.id;
     cartFields.userId = user?.userId;
 
-    // Lưu các trường đã chọn nếu có
     if (productData?.sizeName?.length > 0) {
       cartFields.selectedSize = productData?.sizeName?.[activeSize]?.sizeName;
     }
@@ -106,6 +100,21 @@ const ProductDetails = (props) => {
     }
 
     context.addtoCart(cartFields);
+  };
+
+  const onChangeInput = (e) => {
+    setReview(() => ({
+      ...review,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const onChangeRating = (e) => {
+    alert(e.target.value);
+  };
+
+  const addReview = (e) => {
+    e.preventDefault();
   };
 
   return (
@@ -214,10 +223,10 @@ const ProductDetails = (props) => {
                 </div>
               )}
               <div className="d-flex align-items-center mt-3">
-                <QuantityBox quantity={quantity} />
+                <QuantityBox quantity={quantity} selectItem={selectItem} />
                 <Button
                   className="btn-blue btn-lg btn-big btn-round "
-                  onClick={addtoCart}
+                  onClick={() => addtoCart()}
                   sx={{ color: '#fff' }}
                 >
                   <FaCartShopping className="icon1 mr-2" />
@@ -351,13 +360,14 @@ const ProductDetails = (props) => {
                       </div>
                       <br className="res-hide" />
                       <br className="res-hide" />
-                      <form className="reviewForm">
+                      <form className="reviewForm" onSubmit={addReview}>
                         <h3>Thêm 1 đánh giá</h3>
                         <div className="form-group">
                           <textarea
                             className="form-control"
                             placeholder="Viết đánh giá"
                             name="review"
+                            onChange={onChangeInput}
                           ></textarea>
                         </div>
                         <div className="row">
@@ -367,26 +377,27 @@ const ProductDetails = (props) => {
                                 type="text"
                                 className="form-control"
                                 placeholder="Nhập tên của bạn"
-                                name="userName"
+                                name="customerName"
+                                onChange={onChangeInput}
                               />
                             </div>
                           </div>
                           <div className="col-md-6">
                             <div className="form-group">
                               <Rating
-                                name="read-only"
-                                value={5}
-                                readOnly
-                                size="small"
-                                precision={0.5}
-                                className="rating"
+                                name="simple-controlled"
+                                value={value}
+                                onChange={onChangeRating}
                               />
                             </div>
                           </div>
                         </div>
                         <br />
                         <div className="form-group">
-                          <Button className="btn-blue btn-lg btn-big btn-round">
+                          <Button
+                            type="submit"
+                            className="btn-blue btn-lg btn-big btn-round"
+                          >
                             Gửi đánh giá
                           </Button>
                         </div>

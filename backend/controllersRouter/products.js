@@ -126,22 +126,28 @@ router.get('/featured', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const product = await Products.findById(req.params.id)
-      .populate('category')
-      .populate('subCat')
-      .populate('weightName')
-      .populate('ramName')
-      .populate('sizeName');
+    const { id } = req.params; 
+    const product = await Products.findById(id).populate([
+      'category',
+      'subCat',
+      'weightName',
+      'ramName',
+      'sizeName',
+    ]);
+
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
     }
+
     res.status(200).json(product);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Error retrieving product', error: error.message });
+    res.status(500).json({
+      message: 'Đã xảy ra lỗi khi lấy thông tin sản phẩm',
+      error: error.message,
+    });
   }
 });
+
 
 router.post('/create', upload.array('images'), async (req, res) => {
   try {

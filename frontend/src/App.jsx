@@ -42,6 +42,7 @@ const App = () => {
   const [subCatData, setSubCatData] = useState([]);
   const [activeCat, setActiveCat] = useState('');
   const [addingInCart, setAddingInCart] = useState(false);
+  const [cartData, setCartData] = useState();
   useEffect(() => {
     getCountry('https://countriesnow.space/api/v0.1/countries/');
     fetchDataFromApi(`/api/category`).then((res) => {
@@ -51,7 +52,16 @@ const App = () => {
     fetchDataFromApi('/api/subCategory').then((res) => {
       setSubCatData(res.data);
     });
+    fetchDataFromApi(`/api/cart`).then((res) => {
+      setCartData(res);
+    });
   }, []);
+
+  const getCartData = () => {
+    fetchDataFromApi(`/api/cart`).then((res) => {
+      setCartData(res);
+    });
+  };
 
   useEffect(() => {
     isOpenProductModal.open === true &&
@@ -62,25 +72,36 @@ const App = () => {
 
   const addtoCart = (data) => {
     setAddingInCart(true);
-    postData(`/api/cart/add`, data).then((res) => {
-      if (res.status !== false) {
-        setAlertBox({
-          open: true,
-          error: false,
-          msg: 'Bạn đã thêm vào giỏ hàng',
-        });
-        setTimeout(() => {
+    postData(`/api/cart/add`, data)
+      .then((res) => {
+        if (res && res.status !== false) {
+          setAlertBox({
+            open: true,
+            error: false,
+            msg: 'Bạn đã thêm vào giỏ hàng',
+          });
+          setTimeout(() => {
+            setAddingInCart(false);
+          }, 2000);
+          getCartData();
+        } else {
+          setAlertBox({
+            open: true,
+            error: true,
+            msg: res?.msg || 'Đã có lỗi xảy ra!',
+          });
           setAddingInCart(false);
-        }, 2000);
-      } else {
+        }
+      })
+      .catch((error) => {
+        console.error('Error adding to cart:', error);
         setAlertBox({
           open: true,
-          error: true,  
-          msg: res.msg,
+          error: true,
+          msg: 'Lỗi kết nối hoặc máy chủ không phản hồi.',
         });
         setAddingInCart(false);
-      }
-    });
+      });
   };
 
   useEffect(() => {
@@ -130,6 +151,9 @@ const App = () => {
     addtoCart,
     addingInCart,
     setAddingInCart,
+    cartData,
+    setCartData,
+    getCartData,
   };
   return (
     <BrowserRouter>
