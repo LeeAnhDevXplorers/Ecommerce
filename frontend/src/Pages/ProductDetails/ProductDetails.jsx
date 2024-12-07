@@ -1,53 +1,139 @@
-import React, { useState } from "react";
-import Rating from "@mui/material/Rating";
-import "./ProductDetails.css";
-import ProductZoom from "../../Components/ProductZoom/ProductZoom";
-import QuantityBox from "../../Components/QuantityBox/QuantityBox";
-import { Button } from "@mui/material";
-import { FaCartShopping } from "react-icons/fa6";
-import { FaBox } from "react-icons/fa";
-import { IoIosHeartEmpty } from "react-icons/io";
-import { MdCompareArrows } from "react-icons/md";
-import Tooltip from "@mui/material/Tooltip";
-import Relatedproducts from "./Relatedproducts/Relatedproducts";
-const ProductDetails = () => {
-  const [clicked, setClicked] = useState(false);
+import { Button } from '@mui/material';
+import Rating from '@mui/material/Rating';
+import Tooltip from '@mui/material/Tooltip';
+import React, { useContext, useEffect, useState } from 'react';
+import { FaBox } from 'react-icons/fa';
+import { FaCartShopping } from 'react-icons/fa6';
+import { IoIosHeartEmpty } from 'react-icons/io';
+import { MdCompareArrows } from 'react-icons/md';
+import { useParams } from 'react-router-dom';
+import { MyContext } from '../../App';
+import ProductZoom from '../../Components/ProductZoom/ProductZoom';
+import QuantityBox from '../../Components/QuantityBox/QuantityBox';
+import { fetchDataFromApi } from '../../utils/api';
+import './ProductDetails.css';
+import Relatedproducts from './Relatedproducts/Relatedproducts';
+const ProductDetails = (props) => {
+  const context = useContext(MyContext);
   const [activeSize, setActiveSize] = useState(null);
+  const [activeRam, setActiveRam] = useState(null);
+  const [activeWeight, setActiveWeight] = useState(null);
   const [activeTabs, setActiveTabs] = useState(0);
-  const handleClick = () => {
-    setClicked(true);
-    setTimeout(() => {
-      setClicked(false);
-    }, 3000);
+  const [productData, setProductData] = useState([]);
+  const [relatedProductData, setRelatedProductData] = useState([]);
+  const [productQuantity, setProductQuantity] = useState();
+  let [cartFields, setCartFields] = useState({});
+
+  const setRamActive = (index) => {
+    setActiveRam(index);
   };
 
-  const isActive = (index) => {
+  const setWeightActive = (index) => {
+    setActiveWeight(index);
+  };
+
+  const setSizeActive = (index) => {
     setActiveSize(index);
   };
+
+  const { id } = useParams();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    fetchDataFromApi(`/api/products/${id}`).then((res) => {
+      setProductData(res);
+      fetchDataFromApi(`/api/products?subName=${res?.subName}`).then((res) => {
+        const filteredData = res?.data?.filter((item) => item.id !== id);
+        setRelatedProductData(filteredData);
+      });
+    });
+  }, []);
+
+  const quantity = (val) => {
+    setProductQuantity(val);
+  };
+
+  const addtoCart = () => {
+    let missingFields = [];
+
+    // Kiểm tra nếu sản phẩm yêu cầu `ram`
+    if (productData?.ramName?.length > 0 && activeRam === null) {
+      missingFields.push('ram');
+    }
+
+    // Kiểm tra nếu sản phẩm yêu cầu `size`
+    if (productData?.sizeName?.length > 0 && activeSize === null) {
+      missingFields.push('size');
+    }
+
+    // Kiểm tra nếu sản phẩm yêu cầu `weight`
+    if (productData?.weightName?.length > 0 && activeWeight === null) {
+      missingFields.push('cân nặng');
+    }
+
+    // Nếu có trường chưa chọn, thông báo lỗi
+    if (missingFields.length > 0) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: `Vui lòng chọn ${missingFields.join(', ')}`,
+      });
+      return;
+    }
+
+    // Tất cả các trường cần thiết đã được chọn
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    cartFields.productTitle = productData?.name;
+    cartFields.image = productData?.images[0];
+    cartFields.rating = productData?.rating;
+    cartFields.price = productData?.price;
+    cartFields.quantity = productQuantity;
+    cartFields.subTotal = parseInt(productData?.price * productQuantity);
+    cartFields.productId = productData?._id;
+    cartFields.userId = user?.userId;
+
+    // Lưu các trường đã chọn nếu có
+    if (productData?.sizeName?.length > 0) {
+      cartFields.selectedSize = productData?.sizeName?.[activeSize]?.sizeName;
+    }
+    if (productData?.ramName?.length > 0) {
+      cartFields.selectedRam = productData?.ramName?.[activeRam]?.ramName;
+    }
+    if (productData?.weightName?.length > 0) {
+      cartFields.selectedWeight =
+        productData?.weightName?.[activeWeight]?.weightName;
+    }
+
+    context.addtoCart(cartFields);
+  };
+
   return (
     <>
       <section className="productDetails section">
         <div className="container">
           <div className="row">
             <div className="col col-12 col-lg-5 pl-5">
-              <ProductZoom />
+              <ProductZoom
+                images={productData?.images}
+                discount={productData?.discount}
+              />
             </div>
             <div className="col col-12 col-lg-7 pl-5 pr-5">
-              <h2 className="hd text-capitalize">
-                All Natural Italian-Style Chicken Meatballs
-              </h2>
+              <h2 className="hd text-capitalize">{productData?.name}</h2>
               <ul className="list list-inline d-flex align-items-center">
                 <li className="list-inline-item">
                   <div className="d-flex align-items-center">
-                    <span className="text-light mr-2">Brands: </span>
-                    <span>Welch's</span>
+                    <span className="text-light mr-2">
+                      Brands: <b>{productData?.brand}</b>
+                    </span>
                   </div>
                 </li>
                 <li className="list-inline-item">
                   <div className="d-flex align-items-center">
                     <Rating
                       name="read-only"
-                      value={4.5}
+                      value={productData?.rating}
                       readOnly
                       precision={0.5}
                       size="small"
@@ -56,73 +142,88 @@ const ProductDetails = () => {
                   </div>
                 </li>
               </ul>
-              <div className="d-flex price mb-3">
-                <span className="oldPrice">$1000</span>
-                <span className="netPrice text-danger ml-3">$999</span>
+              <div className="d-flex align-items-center price mb-3">
+                <span className="block oldPrice">${productData?.oldPrice}</span>
+                <span className="block netPrice text-danger ml-3">
+                  ${productData?.price}
+                </span>
               </div>
               <div className="badge badge-success">IN STOCK</div>
-              <p className="mt-3">
-                Vivamus adipiscing nisl ut dolor dignissim semper. Nulla luctus
-                malesuada tincidunt. Class aptent taciti sociosqu ad litora
-                torquent
-              </p>
-              <div className="productSize d-flex align-items-center">
-                <span>Size / Weight</span>
-                <ul className="list list-inline mb-0 pl-4">
-                  <li className="list-inline-item">
-                    <a
-                      className={`tag ${activeSize === 0 ? "active" : ""}`}
-                      onClick={() => isActive(0)}
-                    >
-                      50g
-                    </a>
-                  </li>
-                  <li className="list-inline-item">
-                    <a
-                      className={`tag ${activeSize === 1 ? "active" : ""}`}
-                      onClick={() => isActive(1)}
-                    >
-                      100g
-                    </a>
-                  </li>
-                  <li className="list-inline-item">
-                    <a
-                      className={`tag ${activeSize === 2 ? "active" : ""}`}
-                      onClick={() => isActive(2)}
-                    >
-                      200g
-                    </a>
-                  </li>
-                  <li className="list-inline-item">
-                    <a
-                      className={`tag ${activeSize === 3 ? "active" : ""}`}
-                      onClick={() => isActive(3)}
-                    >
-                      300g
-                    </a>
-                  </li>
-                  <li className="list-inline-item">
-                    <a
-                      className={`tag ${activeSize === 4 ? "active" : ""}`}
-                      onClick={() => isActive(4)}
-                    >
-                      500g
-                    </a>
-                  </li>
-                </ul>
-              </div>
+              <p className="mt-3">{productData?.description}</p>
+              {(productData?.ramName?.length > 0 ||
+                productData?.weightName?.length > 0 ||
+                productData?.sizeName?.length > 0) && (
+                <div className="productSize d-flex">
+                  {productData?.ramName?.length > 0 && (
+                    <div className="item">
+                      <span>Ram / Rom</span>
+                      <ul className="list list-inline mb-0 pl-4">
+                        {productData?.ramName?.map((ram, inram) => (
+                          <li className="list-inline-item" key={inram}>
+                            <a
+                              className={`tag ${
+                                activeRam === inram ? 'active' : ''
+                              }`}
+                              onClick={() => setRamActive(inram)}
+                            >
+                              {ram.ramName}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {productData?.weightName?.length > 0 && (
+                    <>
+                      <span>Cân nặng / Chiều cao</span>
+                      <ul className="list list-inline mb-0 pl-4">
+                        {productData?.weightName?.map((weight, indweight) => (
+                          <li className="list-inline-item" key={indweight}>
+                            <a
+                              className={`tag ${
+                                activeWeight === indweight ? 'active' : ''
+                              }`}
+                              onClick={() => setWeightActive(indweight)}
+                            >
+                              {weight.weightName}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                  {productData?.sizeName?.length > 0 && (
+                    <>
+                      <span>Size</span>
+                      <ul className="list list-inline mb-0 pl-4">
+                        {productData?.sizeName?.map((item, index) => (
+                          <li className="list-inline-item" key={index}>
+                            <a
+                              className={`tag ${
+                                activeSize === index ? 'active' : ''
+                              }`}
+                              onClick={() => setSizeActive(index)}
+                            >
+                              {item.sizeName}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
+              )}
               <div className="d-flex align-items-center mt-3">
-                <QuantityBox />
+                <QuantityBox quantity={quantity} />
                 <Button
-                  className={`cart-btn ${clicked ? "clicked" : ""}`}
-                  onClick={handleClick}
+                  className="btn-blue btn-lg btn-big btn-round "
+                  onClick={addtoCart}
+                  sx={{ color: '#fff' }}
                 >
-                  <span className="btn-blue btn-lg btn-big btn-round add-to-cart">
-                    {clicked ? "Thêm thành công" : "Thêm vào giỏ hàng"}
-                  </span>
-                  {clicked && <span className="added">Thêm thành công</span>}
-                  <FaCartShopping className="icon1" />
-                  <FaBox className="icon2" />
+                  <FaCartShopping className="icon1 mr-2" />
+                  {context.addingInCart === true
+                    ? 'Đang thêm ... '
+                    : ' Thêm vào giỏ hàng'}
                 </Button>
                 <Tooltip title="Add to Wishlist" placement="top">
                   <Button className="btn-blue btn-lg btn-big btn-circle ml-4">
@@ -142,7 +243,7 @@ const ProductDetails = () => {
               <ul className="list list-inline">
                 <li className="list-inline-item">
                   <Button
-                    className={`${activeTabs === 0 && "active"}`}
+                    className={`${activeTabs === 0 && 'active'}`}
                     onClick={() => {
                       setActiveTabs(0);
                     }}
@@ -152,7 +253,7 @@ const ProductDetails = () => {
                 </li>
                 <li className="list-inline-item">
                   <Button
-                    className={`${activeTabs === 1 && "active"}`}
+                    className={`${activeTabs === 1 && 'active'}`}
                     onClick={() => {
                       setActiveTabs(1);
                     }}
@@ -162,7 +263,7 @@ const ProductDetails = () => {
                 </li>
                 <li className="list-inline-item">
                   <Button
-                    className={`${activeTabs === 2 && "active"}`}
+                    className={`${activeTabs === 2 && 'active'}`}
                     onClick={() => {
                       setActiveTabs(2);
                     }}
@@ -172,7 +273,7 @@ const ProductDetails = () => {
                 </li>
                 <li className="list-inline-item">
                   <Button
-                    className={`${activeTabs === 3 && "active"}`}
+                    className={`${activeTabs === 3 && 'active'}`}
                     onClick={() => {
                       setActiveTabs(3);
                     }}
@@ -183,7 +284,7 @@ const ProductDetails = () => {
               </ul>
               {activeTabs === 0 && (
                 <div className="tabContent">
-                  <p>Đây là mô tả sản phẩm</p>
+                  <p> {productData?.description}</p>
                 </div>
               )}
               {activeTabs === 1 && (
@@ -298,8 +399,12 @@ const ProductDetails = () => {
           </div>
 
           <br />
-
-          <Relatedproducts />
+          {relatedProductData?.length !== 0 && (
+            <Relatedproducts
+              title="RELATED PRODUCTS"
+              data={relatedProductData}
+            />
+          )}
         </div>
       </section>
     </>

@@ -1,15 +1,81 @@
+import { Backdrop, CircularProgress } from '@mui/material/';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MyContext } from '../../App';
 import { assets } from '../../assets/assets';
 import './SignIn.css';
+import { postData } from '../../utils/api';
 const SignIn = () => {
   const context = useContext(MyContext);
+  const [loading, setLoading] = useState(false);
+  const [formFields, setFormFields] = useState({
+    email: '',
+    password: '',
+  });
   useEffect(() => {
     context.setisHeaderFooterShow(false);
   });
+
+  const onchangeInput = (e) => {
+    setFormFields(() => ({
+      ...formFields,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const signIn = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Gửi yêu cầu đăng nhập
+      const response = await postData('/api/user/signin', formFields);
+
+      if (response.status) {
+        // Lưu token và thông tin người dùng vào localStorage
+        localStorage.setItem('token', response.token);
+
+        const user = {
+          name: response.user?.name || '',
+          email: response.user?.email || '',
+          userId: response.user?._id || '',
+        };
+        localStorage.setItem('user', JSON.stringify(user));
+
+        // Hiển thị thông báo thành công
+        context.setAlertBox({
+          open: true,
+          error: false,
+          msg: response.msg || 'Đăng nhập thành công.',
+        });
+
+        // Điều hướng sau khi hiển thị thông báo
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      } else {
+        // Xử lý khi đăng nhập thất bại
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: response.msg || 'Đăng nhập thất bại.',
+        });
+      }
+    } catch (error) {
+      // Xử lý lỗi trong quá trình gửi yêu cầu
+      console.error('Lỗi đăng nhập:', error);
+
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: 'Sai EMAIL hoặc MẬT KHẨU. Vui lòng thử lại sau.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div>
       <section className="section signInPage">
@@ -34,12 +100,14 @@ const SignIn = () => {
               <img src={assets.logo} alt="" />
             </div>
             <h2 className="mb-4">Sign In</h2>
-            <form action="" className="mt-3">
+            <form action="" className="mt-3" onSubmit={signIn}>
               <div className="form-group">
                 <TextField
                   id="standard-basic"
                   label="Email"
                   type="email"
+                  name="email"
+                  onChange={onchangeInput}
                   variant="standard"
                   required
                   className="w-100"
@@ -53,11 +121,13 @@ const SignIn = () => {
                   variant="standard"
                   required
                   className="w-100"
+                  name="password"
+                  onChange={onchangeInput}
                 />
               </div>
               <a className="border-effect cursor">Forgot password? </a>
               <div className="d-flex align-items-center mt-3 mb-3 row">
-                <Button className="btn col btn-blue btn-lg btn-big">
+                <Button type='submit' className="btn col btn-blue btn-lg btn-big">
                   Sign In
                 </Button>
                 <Link to={'/'}>
@@ -99,6 +169,17 @@ const SignIn = () => {
           </div>
         </div>
       </section>
+      <Backdrop
+        sx={{
+          color: '#fff',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          transition: 'opacity 0.3s ease-in-out',
+          zIndex: 9999,
+        }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" size={50} thickness={2} />
+      </Backdrop>
     </div>
   );
 };

@@ -1,14 +1,85 @@
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { default as React, useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { default as React, useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { MyContext } from '../../App';
 import { assets } from '../../assets/assets';
+import { postData } from '../../utils/api';
 const SignUp = () => {
   const context = useContext(MyContext);
+  const navigate = useNavigate();
+  const [formFields, setFormFields] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    isAdmin: false,
+  });
   useEffect(() => {
     context.setisHeaderFooterShow(false);
   });
+
+  const onchangeInput = (e) => {
+    setFormFields(() => ({
+      ...formFields,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const signUp = async (e) => {
+    console.log(formFields);
+
+    e.preventDefault();
+
+    const { name, phone, email, password } = formFields;
+
+    // Kiểm tra các trường không được để trống
+    if (
+      [name, phone, email, password].some(
+        (field) => field.trim() === ''
+      )
+    ) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: 'Không được để trống các trường!',
+      });
+      return;
+    }
+
+    try {
+      const res = await postData('/api/user/signup', {
+        name,
+        phone,
+        email,
+        password,
+      });
+
+      if (res.status) {
+        context.setAlertBox({
+          open: true,
+          error: false,
+          msg: 'Đăng ký thành công!',
+        });
+
+        navigate('/signIn');
+      } else {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: res.msg,
+        });
+      }
+    } catch (error) {
+      console.error('Đăng ký thất bại:', error);
+
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: error.response?.data?.msg || 'Có lỗi xảy ra, vui lòng thử lại!',
+      });
+    }
+  };
   return (
     <div>
       <section className="section signInPage">
@@ -33,7 +104,7 @@ const SignUp = () => {
               <img src={assets.logo} alt="" />
             </div>
             <h2 className="mb-4">Sign Up</h2>
-            <form action="" className="mt-3">
+            <form action="" className="mt-3" onSubmit={signUp}>
               <div className="row">
                 <div className="col-md-6">
                   <div className="form-group">
@@ -41,9 +112,11 @@ const SignUp = () => {
                       id="standard-basic"
                       label="Name"
                       type="text"
+                      name="name"
                       variant="standard"
                       required
                       className="w-100"
+                      onChange={onchangeInput}
                     />
                   </div>
                 </div>
@@ -52,10 +125,12 @@ const SignUp = () => {
                     <TextField
                       id="standard-basic"
                       label="Phone No."
+                      name="phone"
                       type="text"
                       variant="standard"
                       required
                       className="w-100"
+                      onChange={onchangeInput}
                     />
                   </div>
                 </div>
@@ -65,9 +140,11 @@ const SignUp = () => {
                   id="standard-basic"
                   label="Email"
                   type="email"
+                  name="email"
                   variant="standard"
                   required
                   className="w-100"
+                  onChange={onchangeInput}
                 />
               </div>
               <div className="form-group mb-4">
@@ -75,12 +152,14 @@ const SignUp = () => {
                   id="standard-basic"
                   label="Password"
                   type="password"
+                  name="password"
+                  onChange={onchangeInput}
                   variant="standard"
                   required
                   className="w-100"
                 />
               </div>
-              <div className="form-group mb-4">
+              {/* <div className="form-group mb-4">
                 <TextField
                   id="standard-basic"
                   label="Repeat your password"
@@ -89,10 +168,13 @@ const SignUp = () => {
                   required
                   className="w-100"
                 />
-              </div>
+              </div> */}
               {/* <a className="border-effect cursor">Forgot password? </a> */}
               <div className="d-flex align-items-center mt-3 mb-3 row">
-                <Button className="btn col btn-blue btn-lg btn-big">
+                <Button
+                  type="submit"
+                  className="btn col btn-blue btn-lg btn-big"
+                >
                   Sign Up
                 </Button>
                 <Link to={'/'}>

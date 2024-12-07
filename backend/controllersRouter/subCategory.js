@@ -1,15 +1,31 @@
 import express from 'express';
 import { SubCategory } from '../models/subCategory.js';
 const router = express.Router();
- 
+
 router.get('/', async (req, res) => {
   try {
-    const subCat = await SubCategory.find()
-      .populate('category', 'name')
-      .populate('subCat', 'name');
+    const page = parseInt(req.query.page) || 1;
+    const perPage = req.query.perPage;
+    const totalPosts = await SubCategory.countDocuments();
+    const totalPages = Math.ceil(totalPosts / perPage);
+
+    if (page > totalPages) {
+      return res.status(404).json({ message: 'Không tìm thấy trang' });
+    }
+    let subCat = [];
+
+    if (req.query.page !== undefined && req.query.perPage !== undefined) {
+      subCat = await SubCategory.find()
+        .populate('category subCat')
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .exec();
+    } else {
+      subCat = await SubCategory.find().populate('category subCat');
+    }
+    subCat = await SubCategory.find().populate('category subCat');
     if (subCat.length === 0) {
-      // If there are no subcategories
-      return res 
+      return res
         .status(404)
         .json({ success: false, message: 'No subcategories found' });
     }
@@ -23,9 +39,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const subCat = await SubCategory.findById(req.params.id).populate(
-      'subCat'
-    );
+    const subCat = await SubCategory.findById(req.params.id).populate('subCat');
     if (!subCat) {
       return res.status(404).json({
         message: 'Không tìm thấy danh mục có id đã cho',

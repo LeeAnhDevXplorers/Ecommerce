@@ -1,5 +1,8 @@
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 import React, { createContext, useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Footer from './Components/Footer/Footer';
@@ -11,7 +14,7 @@ import Listing from './Pages/Listing/Listing';
 import ProductDetails from './Pages/ProductDetails/ProductDetails';
 import SignIn from './Pages/SignIn/SignIn';
 import SignUp from './Pages/SignUp/SignUp';
-import { fetchDataFromApi } from './utils/api';
+import { fetchDataFromApi, postData } from './utils/api';
 
 const MyContext = createContext();
 
@@ -22,13 +25,23 @@ const App = () => {
     id: '',
     open: false,
   });
+  const [alertBox, setAlertBox] = useState({
+    msg: '',
+    error: false,
+    open: false,
+  });
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    userId: '',
+  });
   const [isHeaderFooterShow, setisHeaderFooterShow] = useState(true);
   const [productData, setProducutsData] = useState();
   const [isLogin, setisLogin] = useState(false);
   const [catData, setCatData] = useState([]);
   const [subCatData, setSubCatData] = useState([]);
   const [activeCat, setActiveCat] = useState('');
-
+  const [addingInCart, setAddingInCart] = useState(false);
   useEffect(() => {
     getCountry('https://countriesnow.space/api/v0.1/countries/');
     fetchDataFromApi(`/api/category`).then((res) => {
@@ -47,9 +60,53 @@ const App = () => {
       });
   }, [isOpenProductModal]);
 
+  const addtoCart = (data) => {
+    setAddingInCart(true);
+    postData(`/api/cart/add`, data).then((res) => {
+      if (res.status !== false) {
+        setAlertBox({
+          open: true,
+          error: false,
+          msg: 'Bạn đã thêm vào giỏ hàng',
+        });
+        setTimeout(() => {
+          setAddingInCart(false);
+        }, 2000);
+      } else {
+        setAlertBox({
+          open: true,
+          error: true,  
+          msg: res.msg,
+        });
+        setAddingInCart(false);
+      }
+    });
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token !== null && token !== '' && token !== undefined) {
+      setisLogin(true);
+      const userData = JSON.parse(localStorage.getItem('user'));
+      setUser(userData);
+    } else {
+      setisLogin(false);
+    }
+  }, [isLogin]);
+
   const getCountry = async (url) => {
     const responsive = await axios.get(url).then((res) => {
       setCountruList(res.data.data);
+    });
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setAlertBox({
+      open: false,
     });
   };
   const values = {
@@ -64,14 +121,34 @@ const App = () => {
     setisLogin,
     catData,
     setCatData,
+    alertBox,
+    setAlertBox,
     subCatData,
     setSubCatData,
     activeCat,
     setActiveCat,
+    addtoCart,
+    addingInCart,
+    setAddingInCart,
   };
   return (
     <BrowserRouter>
       <MyContext.Provider value={values}>
+        <Snackbar
+          open={alertBox.open}
+          autoHideDuration={5000}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          onClose={handleClose}
+        >
+          <Alert
+            onClose={handleClose}
+            severity={alertBox.error === false ? 'success' : 'error'}
+            variant="filled"
+            sx={{ fontSize: '1.4rem' }}
+          >
+            {alertBox.msg}
+          </Alert>
+        </Snackbar>
         {isHeaderFooterShow === true && <Header />}
 
         <Routes>

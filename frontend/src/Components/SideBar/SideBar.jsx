@@ -1,4 +1,4 @@
-import { Radio, RadioGroup } from '@mui/material';
+import { Radio, RadioGroup, Rating } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import React, { useContext, useEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import { assets } from '../../assets/assets';
 import './SideBar.css';
 const SideBar = (props) => {
   const [value, setValue] = useState([100, 60000]);
+  //  const [rating, setRating] = useState(2);
   const context = useContext(MyContext);
   const [subName, setSubName] = useState('');
   const [filterSubCat, setFilterSubCat] = useState();
@@ -21,12 +22,16 @@ const SideBar = (props) => {
 
   const { id } = useParams();
   useEffect(() => {
-      setSubName(id)
+    setSubName(id);
   }, [id]);
 
   useEffect(() => {
-    props.filterByPrice(value, subName)
-  }, [value])
+    props.filterByPrice(value, subName);
+  }, [value]);
+
+  const filterByRating = (rating) => {
+    props.filterByRating(rating, subName);
+  };
 
   return (
     <div className="sideBar">
@@ -72,22 +77,42 @@ const SideBar = (props) => {
           </div>
         </div>
         <div className="filterBox">
-          <h6>TÌNH TRẠNG</h6>
+          <h6>Lọc theo đánh giá</h6>
           <div className="scroll">
+            {/* <ul>
+            <li>
+              <FormControlLabel
+                className="w-100"
+                control={<Checkbox />}
+                label="In Stock"
+              />
+            </li>
+            <li>
+              <FormControlLabel
+                className="w-100"
+                control={<Checkbox />}
+                label="On Sale"
+              />
+            </li>
+          </ul> */}
             <ul>
-              <li>
-                <FormControlLabel
-                  className="w-100"
-                  control={<Checkbox />}
-                  label="In Stock"
-                />
+              <li onClick={() => filterByRating(5)}>
+                <Rating name="read-only" value={5} size="small" />
               </li>
-              <li>
-                <FormControlLabel
-                  className="w-100"
-                  control={<Checkbox />}
-                  label="On Sale"
-                />
+              <li onClick={() => filterByRating(4)}>
+                <Rating name="read-only" value={4} size="small" />
+              </li>
+              <li onClick={() => filterByRating(3)}>
+                <Rating name="read-only" value={3} size="small" />
+              </li>
+              <li onClick={() => filterByRating(2)}>
+                <Rating name="read-only" value={2} size="small" />
+              </li>
+              <li onClick={() => filterByRating(1)}>
+                <Rating name="read-only" value={1} size="small" />
+              </li>
+              <li onClick={() => filterByRating(0)}>
+                <Rating name="read-only" value={0} size="small" />
               </li>
             </ul>
           </div>

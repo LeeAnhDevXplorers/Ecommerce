@@ -88,6 +88,7 @@ const productSchema = new mongoose.Schema({
   },
 });
 
+// Tính toán giá mới dựa trên discount và oldPrice
 productSchema.pre('save', function (next) {
   if (this.discount >= 0 && this.discount <= 100) {
     this.price = this.oldPrice - (this.oldPrice * this.discount) / 100;
@@ -97,12 +98,20 @@ productSchema.pre('save', function (next) {
   next();
 });
 
+// Virtual field for id
 productSchema.virtual('id').get(function () {
   return this._id.toHexString();
 });
 
+// Đảm bảo giá trị trả về không có dấu phân cách
 productSchema.set('toJSON', {
   virtuals: true,
+  transform: function (doc, ret) {
+    // Đảm bảo giá trị là số nguyên và không có dấu phân cách
+    ret.price = ret.price.toFixed(0); // Chuyển đổi thành chuỗi mà không có dấu phân cách
+    ret.oldPrice = ret.oldPrice.toFixed(0); // Chuyển đổi thành chuỗi mà không có dấu phân cách
+    return ret;
+  },
 });
 
 export const Products = mongoose.model('Products', productSchema);

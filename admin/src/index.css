@@ -74,6 +74,12 @@ p {
   transition: all 0.3s ease-in-out;
 }
 
+.auth-page {
+  width: 100%;
+  flex: 0 0 100%;
+  transition: all 0.3s ease-in-out;
+}
+
 .content.toggle {
   width: 100%;
   flex: 0 0 100%;
@@ -217,4 +223,8 @@ span.MuiChip-label.MuiChip-labelMedium.css-1dybbl5-MuiChip-label {
 
 .MuiFormControl-root.css-1na8tzq-MuiFormControl-root {
   margin: 0;
+}
+
+.css-rizt0-MuiTypography-root {
+  font-size: 1.4rem !important;
 }

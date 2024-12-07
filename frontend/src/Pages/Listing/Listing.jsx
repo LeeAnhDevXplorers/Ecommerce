@@ -28,28 +28,42 @@ const Listing = (props) => {
   const { id } = useParams();
   useEffect(() => {
     fetchDataFromApi(`/api/products?subName=${id}`).then((res) => {
-      setProductData(res.data)
-    })
+      setProductData(res.data);
+    });
   }, [id]);
 
   const filterData = (subName) => {
-      fetchDataFromApi(`/api/products?subName=${subName}`).then((res) => {
-        setProductData(res.data); 
-      });
-  }
+    fetchDataFromApi(`/api/products?subName=${subName}`).then((res) => {
+      setProductData(res.data);
+    });
+  };
 
   const filterByPrice = (price, subName) => {
-    fetchDataFromApi(`/api/products?minPrice=${price[0]}&maxPrice=${price[1]}&subName=${subName}`).then((res) => {
-      setProductData(res.data)
-    })
-  }
+    fetchDataFromApi(
+      `/api/products?minPrice=${price[0]}&maxPrice=${price[1]}&subName=${subName}`
+    ).then((res) => {
+      setProductData(res.data);
+    });
+  };
+
+  const filterByRating = (rating, subName) => {
+    fetchDataFromApi(`/api/products?rating=${rating}&subName=${subName}`).then(
+      (res) => {
+        setProductData(res.data);
+      }
+    );
+  };
 
   return (
     <>
       <section className="product_Listing_Page">
         <div className="container">
           <div className="productListing d-flex">
-            <SideBar filterData={filterData} filterByPrice={filterByPrice}/>
+            <SideBar
+              filterData={filterData}
+              filterByPrice={filterByPrice}
+              filterByRating={filterByRating}
+            />
             <div className="content_right">
               <img
                 className="w-100"

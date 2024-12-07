@@ -1,15 +1,15 @@
 .lable {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   text-transform: capitalize;
   color: rgba(0, 0, 0, 0.5);
   line-height: 1.8rem;
 }
 
 .name {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   text-transform: capitalize;
   color: #ff6a00;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.8rem;
 }
 
@@ -32,7 +32,7 @@
 
 .headerSearch {
   max-width: 100%;
-  height: 60px;
+  height: 45px;
   background: #f3f4f7;
   padding: 10px;
   position: relative;
@@ -43,17 +43,17 @@
 .headerSearch input {
   background: transparent;
   outline: none;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   color: rgba(0, 0, 0, 0.8);
   width: 100%;
-  height: 40px;
+  height: 22.5px;
   border: 0px;
   padding: 0px 20px;
 }
 
-.headerSearch button {
+.headerSearch button {  
   position: absolute;
-  top: 10px;
+  top: 1px;
   right: 15px;
   z-index: 100;
   min-width: 40px;

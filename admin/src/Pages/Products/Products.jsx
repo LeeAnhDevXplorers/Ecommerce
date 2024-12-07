@@ -127,8 +127,10 @@ const Products = () => {
   const fetchProducts = async (page = 1) => {
     setLoading(true);
     try {
-      const response = await fetchDataFromApi(`/api/products?page=${page}`);
-      console.log(response.data); // Kiểm tra dữ liệu trả về từ API
+      const response = await fetchDataFromApi(
+        `/api/products?page=${page}&perPage=10`
+      );
+      console.log('API Response:', response);
       if (response && response.data) {
         setProductList(Array.isArray(response.data) ? response.data : []);
         setTotalPages(response.totalPages || 1);

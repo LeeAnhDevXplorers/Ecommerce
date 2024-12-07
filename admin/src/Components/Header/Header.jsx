@@ -11,8 +11,7 @@ import { FaBell } from 'react-icons/fa';
 import { IoShieldHalf } from 'react-icons/io5';
 import { MdDarkMode, MdEmail, MdShoppingCart } from 'react-icons/md';
 import { RiMenuUnfold3Line2, RiMenuUnfold4Line2 } from 'react-icons/ri';
-
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MyContext } from '../../App';
 import { assets } from '../../assets/assets';
 import SearchBox from '../SearchBox/SearchBox';
@@ -25,7 +24,7 @@ const Header = () => {
   const openMyacc = Boolean(anchorEl);
   const openNotify = Boolean(isOpenNotifyDrop);
   const context = useContext(MyContext);
-  const [isLogin, setisLogin] = useState(true);
+  const navigate = useNavigate()
   const handleOpenMyAccDrop = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -40,6 +39,14 @@ const Header = () => {
 
   const handleClNotifyDrop = () => {
     setisOpenNotifyDrop(null);
+  };
+
+  const logout = () => {
+    localStorage.clear();
+    setAnchorEl(null)
+    setTimeout(() => {
+      navigate("/login")
+    }, 1000);
   };
 
   return (
@@ -365,7 +372,7 @@ const Header = () => {
               </Menu>
             </div>
 
-            {isLogin !== true ? (
+            {context.isLogin !== true ? (
               <Button className="btn-blue btn-lg btn-round text-white">
                 <Link to={'/login'}>Sign In</Link>
               </Button>
@@ -377,15 +384,12 @@ const Header = () => {
                 >
                   <div className="userImg">
                     <span className="rounded-circle">
-                      <img
-                        src="https://mironcoder-hotash.netlify.app/images/avatar/01.webp"
-                        alt="User Avatar"
-                      />
+                      {context.user?.name?.charAt(0)}
                     </span>
                   </div>
                   <div className="userInfo">
-                    <h4>Anh Anh anh</h4>
-                    <p className="mb-0">@Anh38</p>
+                    <h4>{context.user?.name}</h4>
+                    <p className="mb-0">{context.user?.email}</p>
                   </div>
                 </Button>
                 <Menu
@@ -417,10 +421,7 @@ const Header = () => {
                     </ListItemIcon>
                     Reset Password
                   </MenuItem>
-                  <MenuItem
-                    sx={{ fontSize: '1.5rem' }}
-                    onClick={handleClMyAccDrop}
-                  >
+                  <MenuItem sx={{ fontSize: '1.5rem' }} onClick={logout}>
                     <ListItemIcon>
                       <Logout fontSize="small" />
                     </ListItemIcon>

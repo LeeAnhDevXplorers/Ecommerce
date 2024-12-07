@@ -1,27 +1,48 @@
 import axios from 'axios';
-// import 'dotenv/config';
 
-const BASE_URL = new URL('http://localhost:4000/');
+// Base URL cho API
+const BASE_URL = 'http://localhost:4000/';
 
+// Lấy token từ localStorage (hoặc nơi bạn lưu token)
+const getToken = () => localStorage.getItem('token');
+
+// Cấu hình axios instance
+const apiClient = axios.create({
+  baseURL: BASE_URL,
+});
+
+// Thêm interceptor để thêm token vào header
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Hàm fetch data
 export const fetchDataFromApi = async (url) => {
-  const { data } = await axios.get(new URL(url, BASE_URL));
+  const { data } = await apiClient.get(url);
   return data;
 };
 
+// Hàm post data
 export const postData = async (url, formData) => {
-  const { data } = await axios.post(new URL(url, BASE_URL), formData);
+  const { data } = await apiClient.post(url, formData);
   return data;
 };
 
-
-// Hàm để cập nhật dữ liệu
+// Hàm update data
 export const editData = async (url, updateData) => {
-  // Hàm để cập nhật dữ liệu
-  const { data } = await axios.put(new URL(url, BASE_URL), updateData); // Gửi yêu cầu PUT đến URL kết hợp với BASE_URL và dữ liệu từ form
-  return data; // Trả về dữ liệu nhận được
+  const { data } = await apiClient.put(url, updateData);
+  return data;
 };
 
+// Hàm delete data
 export const deleteData = async (url) => {
-  const { data } = await axios.delete(new URL(url, BASE_URL)); // Không cần id ở đây
-  return data; // Trả về dữ liệu sau khi xóa
+  const { data } = await apiClient.delete(url);
+  return data;
 };

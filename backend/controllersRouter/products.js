@@ -4,12 +4,10 @@ import fs from 'fs';
 import mongoose from 'mongoose';
 import multer from 'multer';
 import pLimit from 'p-limit';
-import { Category } from '../models/categories.js';
 import { ProductWeigth } from '../models/productWeigths.js';
 import { Products } from '../models/products.js';
 import { ProductRams } from '../models/productsRams.js';
 import { ProductSize } from '../models/productsSize.js';
-import { SubCategory } from '../models/subCategory.js';
 
 cloudinary.config({
   cloud_name: process.env.cloudinary_Config_Cloud_Name,
@@ -64,76 +62,59 @@ router.post('/upload', upload.array('images'), async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const perPage = parseInt(req.query.page);
-  const totalPosts = await Products.countDocuments();
-  const totalPages = Math.ceil(totalPosts / perPage);
+  try {
+    // Lấy thông tin phân trang
+    const page = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.perPage) || 10; // Đặt mặc định là 10 sản phẩm/trang
 
-  if (page > totalPages) {
-    return res.status(404).json({ message: 'Không tìm thấy trang' });
-  }
+    // Tạo đối tượng lọc
+    const filter = {};
 
-  let productList = [];
-
-  if (req.query.minPrice !== undefined && req.query.maxPrice !== undefined) {
-    productList = await Products.find({ subName: req.query.subName }).populate(
-      'category subCat weightName ramName sizeName'
-    );
-    const filteredProducts = productList.filter((product) => {
-      if (req.query.minPrice && product.price < parseInt(+req.query.minPrice)) {
-        return false;
-      }
-      if (req.query.maxPrice && product.price > parseInt(+req.query.maxPrice)) {
-        return false;
-      }
-      return true;
-    });
-    if (!productList) {
-      res.status(500).json({ success: false });
+    // Lọc theo subName
+    if (req.query.subName) {
+      filter.subName = req.query.subName;
     }
-    return res.status(200).json({
-      data: filteredProducts,
-      totalPages: totalPages,
-      page: page,
-    });
-  } else {
-    productList = await Products.find(req.query).populate(
-      'category subCat weightName ramName sizeName'
-    );
-    if (!productList) {
-      res.status(500).json({ success: false });
+    if (req.query.catName) {
+      filter.catName = req.query.catName;
     }
+
+    // Lọc theo khoảng giá
+    if (req.query.minPrice || req.query.maxPrice) {
+      filter.price = {};
+      if (req.query.minPrice) {
+        filter.price.$gte = parseInt(req.query.minPrice);
+      }
+      if (req.query.maxPrice) {
+        filter.price.$lte = parseInt(req.query.maxPrice);
+      }
+    }
+
+    // Tính tổng số sản phẩm
+    const totalPosts = await Products.countDocuments(filter);
+    const totalPages = Math.ceil(totalPosts / perPage);
+
+    // Kiểm tra nếu trang vượt quá số trang tối đa
+    if (page > totalPages && totalPages > 0) {
+      return res.status(404).json({ message: 'Không tìm thấy trang' });
+    }
+
+    // Lấy danh sách sản phẩm với phân trang và lọc
+    const productList = await Products.find(filter)
+      .populate('category subCat weightName ramName sizeName')
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+
     return res.status(200).json({
       data: productList,
-      totalPages: totalPages,
-      page: page,
+      totalPages,
+      page,
     });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ', error });
   }
-
-  // if (req.query.catName !== undefined) {
-  //   productList = await Products.find({ catName: req.query.catName }).populate(
-  //     'category subCat weightName ramName sizeName'
-  //   );
-  // } else {
-  //   productList = await Products.find()
-  //     .populate('category subCat weightName ramName sizeName')
-  //     .skip((page - 1) * perPage)
-  //     .limit(perPage)
-  //     .exec();
-  // }
-
-  // if (req.query.subName !== undefined) {
-  //   productList = await Products.find({ subName: req.query.subName }).populate(
-  //     'category subCat weightName ramName sizeName'
-  //   );
-  // } else {
-  //   productList = await Products.find()
-  //     .populate('category subCat weightName ramName sizeName')
-  //     .skip((page - 1) * perPage)
-  //     .limit(perPage)
-  //     .exec();
-  // }
 });
+
 router.get('/featured', async (req, res) => {
   const productList = await Products.find({ isFeatured: true });
   if (!productList) {

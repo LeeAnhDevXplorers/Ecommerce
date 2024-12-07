@@ -1,16 +1,43 @@
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import {
+  Avatar,
+  Divider,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+} from '@mui/material/';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import Settings from '@mui/icons-material/Settings';
+import Logout from '@mui/icons-material/Logout';
 import Button from '@mui/material/Button';
+import React, { useContext } from 'react';
 import { FaRegUser } from 'react-icons/fa';
 import { IoBagHandleOutline } from 'react-icons/io5';
-import './Header.css';
+import { Link, useNavigate } from 'react-router-dom';
+import { MyContext } from '../../App';
 import { assets } from '../../assets/assets';
 import CountryDrop from '../CountryDrop/CountryDrop';
-import SearchBox from './SearchBox/SearchBox';
+import './Header.css';
 import Navigation from './Navigation/Navigation';
-import { MyContext } from '../../App';
+import SearchBox from './SearchBox/SearchBox';
 const Header = () => {
   const context = useContext(MyContext);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const navigate = useNavigate();
+
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+    const logout = () => {
+      localStorage.clear();
+      setAnchorEl(null);
+      context.setisLogin(false)
+    };
+
   return (
     <>
       <div className="headerWrapper">
@@ -42,9 +69,78 @@ const Header = () => {
                       </Button>
                     </Link>
                   ) : (
-                    <Button className="circle mr-3">
-                      <FaRegUser />
-                    </Button>
+                    <>
+                      <Button className="circle mr-3" onClick={handleClick}>
+                        <FaRegUser />
+                      </Button>
+                      <Menu
+                        anchorEl={anchorEl}
+                        id="account-menu"
+                        open={open}
+                        onClose={handleClose}
+                        onClick={handleClose}
+                        slotProps={{
+                          paper: {
+                            elevation: 0,
+                            sx: {
+                              overflow: 'visible',
+                              filter:
+                                'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                              mt: 1.5,
+                              '& .MuiAvatar-root': {
+                                width: 32,
+                                height: 32,
+                                ml: -0.5,
+                                mr: 1,
+                              },
+                              '&::before': {
+                                content: '""',
+                                display: 'block',
+                                position: 'absolute',
+                                top: 0,
+                                right: 14,
+                                width: 10,
+                                height: 10,
+                                bgcolor: 'background.paper',
+                                transform: 'translateY(-50%) rotate(45deg)',
+                                zIndex: 0,
+                              },
+                            },
+                          },
+                        }}
+                        transformOrigin={{
+                          horizontal: 'right',
+                          vertical: 'top',
+                        }}
+                        anchorOrigin={{
+                          horizontal: 'right',
+                          vertical: 'bottom',
+                        }}
+                      >
+                        <MenuItem onClick={handleClose} sx={{fontSize: "1.6rem"}}>
+                          <Avatar /> My account
+                        </MenuItem>
+                        <Divider />
+                        <MenuItem onClick={handleClose}>
+                          <ListItemIcon>
+                            <FactCheckIcon fontSize="large" />
+                          </ListItemIcon>
+                          Orders
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>
+                          <ListItemIcon>
+                            <FavoriteIcon fontSize="large" />
+                          </ListItemIcon>
+                          My List
+                        </MenuItem>
+                        <MenuItem onClick={logout}>
+                          <ListItemIcon>
+                            <Logout fontSize="large" />
+                          </ListItemIcon>
+                          Logout
+                        </MenuItem>
+                      </Menu>
+                    </>
                   )}
 
                   {/*  */}
@@ -67,7 +163,9 @@ const Header = () => {
             </div>
           </div>
         </header>
-        {context.catData?.length !== 0 && <Navigation navData={context.catData}/>}
+        {context.catData?.length !== 0 && (
+          <Navigation navData={context.catData} />
+        )}
       </div>
     </>
   );

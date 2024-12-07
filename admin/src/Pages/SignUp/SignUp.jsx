@@ -1,147 +1,229 @@
+import Button from '@mui/material/Button';
 import React, { useContext, useEffect, useState } from 'react';
-import { FaEye, FaGoogle } from 'react-icons/fa';
-import { FaEyeSlash } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { FaUserAlt } from 'react-icons/fa';
+import { FaPhone } from 'react-icons/fa6';
+import { MdEmail, MdOutlineSecurity } from 'react-icons/md';
+import { RiLockPasswordFill } from 'react-icons/ri';
+import { Link, useNavigate } from 'react-router-dom';
 import { MyContext } from '../../App';
 
-import Button from '@mui/material/Button';
-
+import { assets } from '../../assets/assets';
+import { postData } from '../../utils/api';
 import './SignUp.css';
 const SignUp = () => {
   const context = useContext(MyContext);
-  const [isShowPass, setisShowPass] = useState(false);
+  const navigate = useNavigate();
+  const [formFields, setFormFields] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+    isAdmin: true,
+  });
   useEffect(() => {
     context.setisHide(false);
-
-    // Cleanup function để reset giá trị khi component unmount
     return () => {
       context.setisHide(true);
     };
   }, [context]);
+
+  const onchangeInput = (e) => {
+    setFormFields(() => ({
+      ...formFields,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const signUp = async (e) => {
+    e.preventDefault();
+
+    const { name, phone, email, password, confirmPassword } = formFields;
+
+    // Kiểm tra các trường không được để trống
+    if (
+      [name, phone, email, password, confirmPassword].some(
+        (field) => field.trim() === ''
+      )
+    ) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: 'Không được để trống các trường!',
+      });
+      return;
+    }
+
+    // Kiểm tra mật khẩu khớp
+    if (password !== confirmPassword) {
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: 'Mật khẩu không trùng khớp!',
+      });
+      return;
+    }
+
+    try {
+      const res = await postData('/api/user/signup', {
+        name,
+        phone,
+        email,
+        password,
+      });
+
+      if (res.status) {
+        context.setAlertBox({
+          open: true,
+          error: false,
+          msg: 'Đăng ký thành công!',
+        });
+
+        navigate('/login');
+      } else {
+        context.setAlertBox({
+          open: true,
+          error: true,
+          msg: res.msg,
+        });
+      }
+    } catch (error) {
+      console.error('Đăng ký thất bại:', error);
+
+      context.setAlertBox({
+        open: true,
+        error: true,
+        msg: error.response?.data?.msg || 'Có lỗi xảy ra, vui lòng thử lại!',
+      });
+    }
+  };
+
   return (
-    <div>
-      <div className="maincontainer">
-        <div
-          className="form-group link_wrapper"
-          style={{
-            width: '250px',
-          }}
-        >
-          {/* Nút trở về trang Home */}
-          <Link to={'/'} className="btn btn-home">
-            <Button>Go To Home</Button>
-          </Link>
-          <div class="icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 268.832 268.832"
-            >
-              <path d="M265.17 125.577l-80-80c-4.88-4.88-12.796-4.88-17.677 0-4.882 4.882-4.882 12.796 0 17.678l58.66 58.66H12.5c-6.903 0-12.5 5.598-12.5 12.5 0 6.903 5.597 12.5 12.5 12.5h213.654l-58.66 58.662c-4.88 4.882-4.88 12.796 0 17.678 2.44 2.44 5.64 3.66 8.84 3.66s6.398-1.22 8.84-3.66l79.997-80c4.883-4.882 4.883-12.796 0-17.678z" />
-            </svg>
-          </div>
-        </div>
-        <div className="container">
-          <div className="card bg-light">
-            <article
-              className="card-body mx-auto"
-              style={{ maxWidth: '400px' }}
-            >
-              <h4 className="card-title mt-3 text-center">Đăng ký</h4>
-              <p className="text-center">
-                Bắt đầu với tài khoản miễn phí của bạn
-              </p>
-              <div className="d-flex align-items-center justify-content-center">
-                <Button>
-                  <Link to={'#'} className="btn btn-block btn-twitter">
-                    <FaGoogle /> Login via Google
-                  </Link>
-                </Button>
-                <Button>
-                  <Link to={'#'} className="btn btn-block btn-facebook">
-                    <i className="fab fa-facebook-f"></i> Login via facebook
-                  </Link>
-                </Button>
+    <>
+      <div className="container1">
+        <div className="row">
+          <div className="col-lg-6 col-md-6 d-none d-md-block infinity-image-container"></div>
+
+          <div className="col-lg-6 col-md-6 infinity-form-container">
+            <div className="col-lg-9 col-md-12 col-sm-8 col-xs-12 infinity-form">
+              <div className="text-center mb-3">
+                <img src={assets.logo1} width="300px" />
               </div>
-              <p className="divider-text">
-                <span className="bg-light">OR</span>
-              </p>
-              <form>
-                <div className="form-group input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text">
-                      <i className="fa fa-user"></i>
-                    </span>
-                  </div>
+              <div className="text-center mb-4">
+                <h4>ĐĂNG KÝ TÀI KHOẢN</h4>
+              </div>
+
+              <form className="px-3" onSubmit={signUp}>
+                <div className="form-input">
+                  <span>
+                    <FaUserAlt />
+                  </span>
                   <input
-                    name=""
-                    className="form-control"
-                    placeholder="Full name"
                     type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    tabindex="10"
+                    required
+                    onChange={onchangeInput}
                   />
                 </div>
-                <div className="form-group input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text">
-                      <i className="fa fa-envelope"></i>
-                    </span>
-                  </div>
+                <div className="form-input">
+                  <span>
+                    <MdEmail />
+                  </span>
                   <input
-                    name=""
-                    className="form-control"
-                    placeholder="Email address"
                     type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    tabindex="10"
+                    required
+                    onChange={onchangeInput}
                   />
                 </div>
-                <div className="form-group input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text">
-                      <i className="fa fa-lock"></i>
-                    </span>
-                  </div>
-                  <input
-                    className="form-control"
-                    placeholder="Create password"
-                    type={`${isShowPass === true ? 'text' : 'password'}`}
-                  />
-                  <span
-                    className="showTogglePass"
-                    onClick={() => setisShowPass(!isShowPass)}
-                  >
-                    {isShowPass === true ? <FaEyeSlash /> : <FaEye />}
+                <div className="form-input">
+                  <span>
+                    <FaPhone />
                   </span>
-                </div>
-                <div className="form-group input-group">
-                  <div className="input-group-prepend">
-                    <span className="input-group-text">
-                      <i className="fa fa-lock"></i>
-                    </span>
-                  </div>
                   <input
-                    className="form-control"
-                    placeholder="Repeat password"
-                    type={`${isShowPass === true ? 'text' : 'password'}`}
+                    type="text"
+                    name="phone"
+                    placeholder="Email Address"
+                    tabindex="10"
+                    required
+                    onChange={onchangeInput}
                   />
-                  <span
-                    className="showTogglePass"
-                    onClick={() => setisShowPass(!isShowPass)}
-                  >
-                    {isShowPass === true ? <FaEyeSlash /> : <FaEye />}
-                  </span>
                 </div>
-                <div className="form-group">
-                  <button type="button" className="btn btn-primary btn-block">
-                    Đăng ký
+                <div className="form-input">
+                  <span>
+                    <RiLockPasswordFill />
+                  </span>
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    required
+                    onChange={onchangeInput}
+                  />
+                </div>
+                <div className="form-input">
+                  <span>
+                    <MdOutlineSecurity />
+                  </span>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Password"
+                    required
+                    onChange={onchangeInput}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <button type="submit" className="btn btn-block">
+                    Đăng ký
                   </button>
                 </div>
-                <p className="text-center">
-                  Bạn đã có tài khoản? <Link to={'/login'}>Đăng nhập</Link>
-                </p>
+                <div
+                  className="text-center mb-2"
+                  style={{ fontSize: '1.6rem' }}
+                >
+                  <div className="text-center mb-4 text-white">
+                    or register with
+                  </div>
+
+                  <Link className="btn btn-social btn-facebook">
+                    <Button
+                      style={{ color: '#fff', fontSize: '1.6rem' }}
+                      variant="outlined"
+                    >
+                      facebook
+                    </Button>
+                  </Link>
+                  <Link href="" className="btn btn-social btn-google">
+                    <Button
+                      style={{ color: '#fff', fontSize: '1.6rem' }}
+                      variant="outlined"
+                    >
+                      google
+                    </Button>
+                  </Link>
+                </div>
+                <div
+                  className="text-center mb-5 text-white"
+                  style={{ fontSize: '1.6rem' }}
+                >
+                  Already have an account?
+                  <Link className="login-link" to="/login">
+                    {' '}
+                    Login here
+                  </Link>
+                </div>
               </form>
-            </article>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

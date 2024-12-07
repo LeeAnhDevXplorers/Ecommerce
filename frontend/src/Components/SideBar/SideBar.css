@@ -22,7 +22,7 @@
   padding-left: 10px;
   max-height: 200px;
   overflow-y: scroll;
-  overflow-x: hidden;
+  overflow-x: hidden; 
 }
 
 .sideBar .scroll::-webkit-scrollbar {
@@ -62,7 +62,6 @@
 
 .range-slider {
   height: 0.5rem;
-
 }
 
 .range-slider .range-slider__thumb {
@@ -70,6 +69,6 @@
   height: 1.5rem;
 }
 
-.priceRange{
+.priceRange {
   font-size: 1.4rem;
 }
