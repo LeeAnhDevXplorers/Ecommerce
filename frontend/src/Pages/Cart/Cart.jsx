@@ -32,9 +32,8 @@ const Cart = () => {
         msg: 'Xóa sản phẩm thành công',
       });
       fetchDataFromApi(`/api/cart`).then(setCartData);
-      context.getCartData()
+      context.getCartData();
     });
-
   };
 
   const handleClick = () => {
@@ -45,7 +44,8 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    fetchDataFromApi(`/api/cart`).then((res) => {
+    const user = JSON.parse(localStorage.getItem("user"))
+    fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
       setCartData(res);
       setSelectedQuantity(res?.quantity);
     });
@@ -69,14 +69,14 @@ const Cart = () => {
         price: item?.price || 0,
         quantity: quantityVal || 0,
         subTotal: parseInt(item?.price * quantityVal) || 0,
-        productId: item?._id || '',
+        productId: item?.id || '',
         userId: user?.userId || '',
       };
 
       editData(`/api/cart/${item?._id}`, cartFields)
         .then((res) => {
           setIsLoading(false);
-          fetchDataFromApi(`/api/cart`).then(setCartData);
+          fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then(setCartData);
         })
         .catch((error) => {
           console.error('Error updating cart:', error);
@@ -198,13 +198,15 @@ const Cart = () => {
                 </div>
                 <br />
                 <div className="d-flex align-items-center justify-content-center mt-3">
-                  <Button
-                    className="cart-btn btn-blue btn-big btn-round"
-                    onClick={handleClick}
-                  >
-                    <IoBagCheckOutline />
-                    Thanh Toán
-                  </Button>
+                  <Link to="/checkout">
+                    <Button
+                      className="cart-btn btn-blue btn-big btn-round"
+                      onClick={handleClick}
+                    >
+                      <IoBagCheckOutline />
+                      Thanh Toán
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

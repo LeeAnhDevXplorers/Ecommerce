@@ -105,8 +105,6 @@ html {
 .MuiTabs-scrollButtons.Mui-disabled {
   opacity: 0.3;
 }
-.filter-tabs {
-}
 .MuiButtonBase-root {
   font-size: 1.2rem !important;
   color: #4b4747 !important;
@@ -127,4 +125,50 @@ html {
   z-index: 10000;
   cursor: wait;
   background-color: rgba(255, 255, 255, 0.7);
+}
+
+.checkout-form .form-group {
+  margin-bottom: 20px;
+}
+
+.orderInfo {
+  background-color: #fafafa;
+  padding: 25px;
+}
+
+.orderInfo thead {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 1.4rem;
+  color: #c2c2d3;
+}
+
+.orderInfo tfoot {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 1.4rem;
+  color: #71778e;
+}
+
+.orderInfo tbody {
+  font-size: 1.2rem;
+  color: #202435;
+  font-weight: 500;
+}
+
+.orderInfo .btn-primary {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+.orderInfo .btn-primary:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.orderInfo .btn-pay {
+  color: #fff !important;
+}
+
+.orderInfo .btn-pay svg {
+  font-size: 2rem;
 }

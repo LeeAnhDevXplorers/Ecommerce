@@ -9,6 +9,7 @@ import Footer from './Components/Footer/Footer';
 import Header from './Components/Header/Header';
 import ProductModal from './Components/ProductModal/ProductModal';
 import Cart from './Pages/Cart/Cart';
+import Checkout from './Pages/Checkout/Checkout';
 import Home from './Pages/Home/Home';
 import Listing from './Pages/Listing/Listing';
 import ProductDetails from './Pages/ProductDetails/ProductDetails';
@@ -160,15 +161,15 @@ const App = () => {
       <MyContext.Provider value={values}>
         <Snackbar
           open={alertBox.open}
-          autoHideDuration={5000}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
           onClose={handleClose}
         >
           <Alert
             onClose={handleClose}
             severity={alertBox.error === false ? 'success' : 'error'}
             variant="filled"
-            sx={{ fontSize: '1.4rem' }}
+            sx={{ fontSize: '1.4rem', width: '100%' }}
           >
             {alertBox.msg}
           </Alert>
@@ -186,6 +187,7 @@ const App = () => {
           <Route path="/cart" exact={true} element={<Cart />} />
           <Route path="/signIn" exact={true} element={<SignIn />} />
           <Route path="/signUp" exact={true} element={<SignUp />} />
+          <Route path="/checkout" exact={true} element={<Checkout />} />
         </Routes>
         {isHeaderFooterShow === true && <Footer />}
 
