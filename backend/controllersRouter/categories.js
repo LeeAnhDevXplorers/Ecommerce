@@ -10,7 +10,7 @@ cloudinary.config({
   api_key: process.env.cloudinary_Config_api_key, 
   api_secret: process.env.cloudinary_Config_api_secret,
 });
-
+ 
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -61,7 +61,7 @@ router.post('/upload', upload.array('images'), async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const perPage = 25;
+    const perPage = 20;
     const totalPosts = await Category.countDocuments();
     const totalPages = Math.ceil(totalPosts / perPage);
 

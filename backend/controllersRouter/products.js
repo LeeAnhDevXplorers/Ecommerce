@@ -65,7 +65,7 @@ router.get('/', async (req, res) => {
   try {
     // Lấy thông tin phân trang
     const page = parseInt(req.query.page) || 1;
-    const perPage = parseInt(req.query.perPage) || 10; // Đặt mặc định là 10 sản phẩm/trang
+    const perPage = parseInt(req.query.perPage) || 5; // Đặt mặc định là 10 sản phẩm/trang
 
     // Tạo đối tượng lọc
     const filter = {};

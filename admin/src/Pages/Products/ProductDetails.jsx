@@ -2,7 +2,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HomeIcon from '@mui/icons-material/Home';
 import { Breadcrumbs, Chip } from '@mui/material';
 import { emphasize, styled } from '@mui/material/styles';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 // core version + navigation, pagination modules:
 import { Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -16,11 +16,12 @@ import { FaReply } from 'react-icons/fa6';
 import { ImPriceTags } from 'react-icons/im';
 import { IoIosCart, IoIosColorPalette } from 'react-icons/io';
 import { IoSettingsOutline, IoStarHalf } from 'react-icons/io5';
-
+import { useParams } from 'react-router-dom';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import UserAvataComponent from '../../Components/userAvataComponent/userAvataComponent';
+import { fetchDataFromApi } from '../../utils/api';
 import './ProductDetails.css';
 
 const StyleBreadcrumb = styled(Chip)(({ theme }) => {
@@ -45,7 +46,6 @@ const StyleBreadcrumb = styled(Chip)(({ theme }) => {
 
 const ProductDetails = () => {
   const [slideIndex, setSlideIndex] = useState(0);
-
   const zoomSliderBig = useRef();
   const zoomSlider = useRef();
   const goto = (index) => {
@@ -53,9 +53,22 @@ const ProductDetails = () => {
     zoomSlider.current.swiper.slideTo(index);
     zoomSliderBig.current.swiper.slideTo(index);
   };
-
   const totalReviews = 38;
   const averageRating = 4.9;
+
+  const { id } = useParams();
+  const [productData, setProductData] = useState([]);
+  const [reviewDatas, setReviewDatas] = useState([])
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    fetchDataFromApi(`/api/products/${id}`).then((res) => {
+      setProductData(res);
+    });
+    fetchDataFromApi(`/api/productReview?productId=${id}`).then((res) => {
+      setReviewDatas(res)
+    })
+  }, [id]);
   return (
     <>
       <div className="right-content w-100">
@@ -90,46 +103,15 @@ const ProductDetails = () => {
                   ref={zoomSlider}
                   className="mb-4"
                 >
-                  <SwiperSlide>
-                    <div className="item">
-                      <img
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                        className="w-100"
-                      />
-                    </div>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <div className="item">
-                      <img
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                        className="w-100"
-                      />
-                    </div>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <div className="item">
-                      <img
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                        className="w-100"
-                      />
-                    </div>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <div className="item">
-                      <img
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                        className="w-100"
-                      />
-                    </div>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <div className="item">
-                      <img
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                        className="w-100"
-                      />
-                    </div>
-                  </SwiperSlide>
+                  {productData?.images?.map((item, index) => {
+                    return (
+                      <SwiperSlide key={index}>
+                        <div className="item">
+                          <img src={item} className="w-100" />
+                        </div>
+                      </SwiperSlide>
+                    );
+                  })}
                 </Swiper>
                 <Swiper
                   slidesPerView={4}
@@ -138,68 +120,30 @@ const ProductDetails = () => {
                   slidesPerGroup={1}
                   modules={[Navigation]}
                 >
-                  <SwiperSlide>
-                    <div
-                      className={`item ${slideIndex === 0 && 'item_active'}`}
-                    >
-                      <img
-                        className="w-100"
-                        onClick={() => goto(0)}
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                      />
-                    </div>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <div
-                      className={`item ${slideIndex === 1 && 'item_active'}`}
-                    >
-                      <img
-                        className="w-100"
-                        onClick={() => goto(1)}
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                      />
-                    </div>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <div
-                      className={`item ${slideIndex === 2 && 'item_active'}`}
-                    >
-                      <img
-                        className="w-100"
-                        onClick={() => goto(2)}
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                      />
-                    </div>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <div
-                      className={`item ${slideIndex === 3 && 'item_active'}`}
-                    >
-                      <img
-                        className="w-100"
-                        onClick={() => goto(3)}
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                      />
-                    </div>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <div
-                      className={`item ${slideIndex === 4 && 'item_active'}`}
-                    >
-                      <img
-                        className="w-100"
-                        onClick={() => goto(4)}
-                        src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                      />
-                    </div>
-                  </SwiperSlide>
+                  {productData?.images?.map((item, index) => {
+                    return (
+                      <SwiperSlide key={index}>
+                        <div
+                          className={`item ${
+                            slideIndex === 0 && 'item_active'
+                          }`}
+                        >
+                          <img
+                            className="w-100"
+                            onClick={() => goto(index)}
+                            src={item}
+                          />
+                        </div>
+                      </SwiperSlide>
+                    );
+                  })}
                 </Swiper>
               </div>
             </div>
             <div className="col-md-7">
               <div className="productWrapper pt-3 pb-3 pl-4 pr-4">
                 <h6 className="mb-3 ml-0">Product Details</h6>
-                <h4 className="mb-3">Tên sản phẩm</h4>
+                <h4 className="mb-3">{productData?.name}</h4>
                 <div className="productInfo">
                   <div className="row">
                     <div className="col-sm-3 d-flex align-items-center">
@@ -209,7 +153,7 @@ const ProductDetails = () => {
                       <span className="name">Brand</span>
                     </div>
                     <div className="col-sm-9">
-                      : <span>Hà Nội</span>
+                      : <span>{productData?.brand}</span>
                     </div>
                   </div>
                   <div className="row">
@@ -220,97 +164,93 @@ const ProductDetails = () => {
                       <span className="name">Category</span>
                     </div>
                     <div className="col-sm-9">
-                      : <span>Man's</span>
+                      : <span>{productData?.catName}</span>
                     </div>
                   </div>
+                  {(productData?.ramName?.length > 0 ||
+                    productData?.weightName?.length > 0 ||
+                    productData?.sizeName?.length > 0) && (
+                    <>
+                      {productData?.sizeName?.length > 0 && (
+                        <div className="row">
+                          <div className="col-sm-3 d-flex align-items-center">
+                            <span className="icon">
+                              <BsFileEarmarkRuledFill />
+                            </span>
+                            <span className="name">Size</span>
+                          </div>
+                          <div className="col-sm-9">
+                            :
+                            <span>
+                              <ul className="list list-inline tags sml">
+                                {productData?.sizeName?.map((size, index) => (
+                                  <li
+                                    className="list-inline-item m-1"
+                                    key={index}
+                                  >
+                                    <span>{size.sizeName}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {productData?.weightName?.length > 0 && (
+                        <div className="row">
+                          <div className="col-sm-3 d-flex align-items-center">
+                            <span className="icon">
+                              <BsFileEarmarkRuledFill />
+                            </span>
+                            <span className="name">Weight</span>
+                          </div>
+                          <div className="col-sm-9">
+                            :
+                            <span>
+                              <ul className="list list-inline tags sml">
+                                {productData?.weightName?.map((w, index) => (
+                                  <li className="list-inline-item" key={index}>
+                                    <span>{w.weightName}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {productData?.ramName?.length > 0 && (
+                        <div className="row">
+                          <div className="col-sm-3 d-flex align-items-center">
+                            <span className="icon">
+                              <BsFileEarmarkRuledFill />
+                            </span>
+                            <span className="name">Ram / Rom</span>
+                          </div>
+                          <div className="col-sm-9">
+                            :
+                            <span>
+                              <ul className="list list-inline tags sml">
+                                {productData?.ramName?.map((ram, index) => (
+                                  <li className="list-inline-item" key={index}>
+                                    <span>{ram.ramName}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                   <div className="row">
                     <div className="col-sm-3 d-flex align-items-center">
                       <span className="icon">
-                        <IoSettingsOutline />
+                        <ImPriceTags />
                       </span>
-                      <span className="name">Tag</span>
+                      <span className="name">OLD Price</span>
                     </div>
                     <div className="col-sm-9">
-                      :
-                      <span>
-                        <ul className="list list-inline tags sml">
-                          <li className="list-inline-item">
-                            <span>MAN'S</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>1</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>1</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>1</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>1</span>
-                          </li>
-                        </ul>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-sm-3 d-flex align-items-center">
-                      <span className="icon">
-                        <IoIosColorPalette />
-                      </span>
-                      <span className="name">Color</span>
-                    </div>
-                    <div className="col-sm-9">
-                      :
-                      <span>
-                        <ul className="list list-inline tags sml">
-                          <li className="list-inline-item">
-                            <span>Red</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>1</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>1</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>1</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>1</span>
-                          </li>
-                        </ul>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-sm-3 d-flex align-items-center">
-                      <span className="icon">
-                        <BsFileEarmarkRuledFill />
-                      </span>
-                      <span className="name">Size</span>
-                    </div>
-                    <div className="col-sm-9">
-                      :
-                      <span>
-                        <ul className="list list-inline tags sml">
-                          <li className="list-inline-item">
-                            <span>XS</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>S</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>M</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>L</span>
-                          </li>
-                          <li className="list-inline-item">
-                            <span>XL</span>
-                          </li>
-                        </ul>
-                      </span>
+                      : <span>{productData?.oldPrice}$</span>
                     </div>
                   </div>
                   <div className="row">
@@ -321,9 +261,10 @@ const ProductDetails = () => {
                       <span className="name">Price</span>
                     </div>
                     <div className="col-sm-9">
-                      : <span>$99.00</span>
+                      : <span>{productData?.price}$</span>
                     </div>
                   </div>
+
                   <div className="row">
                     <div className="col-sm-3 d-flex align-items-center">
                       <span className="icon">
@@ -332,7 +273,7 @@ const ProductDetails = () => {
                       <span className="name">Stock</span>
                     </div>
                     <div className="col-sm-9">
-                      : <span>(68) Cái</span>
+                      : <span>({productData?.countInStock}) Cái</span>
                     </div>
                   </div>
                   <div className="row">
@@ -343,7 +284,18 @@ const ProductDetails = () => {
                       <span className="name">Review</span>
                     </div>
                     <div className="col-sm-9">
-                      : <span>(10) Review</span>
+                      : <span>({reviewDatas?.length}) Review</span>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-sm-3 d-flex align-items-center">
+                      <span className="icon">
+                        <IoStarHalf />
+                      </span>
+                      <span className="name">Review</span>
+                    </div>
+                    <div className="col-sm-9">
+                      : <span>({productData?.dateCreated})</span>
                     </div>
                   </div>
                 </div>
@@ -352,17 +304,8 @@ const ProductDetails = () => {
           </div>
           <div className="p-4">
             <h5 className="mt-4 mb-3">Product Description</h5>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Error est
-              magnam natus eaque facere, nulla neque omnis iusto dignissimos
-              autem ducimus provident repudiandae dolores quidem reprehenderit
-              officiis aut? Natus, cumque. Lorem, ipsum dolor sit amet
-              consectetur adipisicing elit. Necessitatibus quia consectetur
-              facere fugiat dolorem obcaecati, tenetur porro quas illo suscipit.
-              Ut laboriosam inventore temporibus aspernatur facere ratione
-              voluptate harum id!
-            </p>
-            <h5 className="mt-4 mb-4">Rating Analytics</h5>
+            <p>{productData?.description}</p>
+            {/* <h5 className="mt-4 mb-4">Rating Analytics</h5>
             <div className="rating-container">
               <div className="rating-analytics">
                 <div className="rating-bar">
@@ -419,175 +362,61 @@ const ProductDetails = () => {
                 </div>
                 <p>Your Average Rating Star</p>
               </div>
-            </div>
+            </div> */}
             <h5 className="mt-4 mb-4">Customer Review</h5>
             <div className="review_section">
-              <div className="review_row">
-                <div className="row">
-                  <div className="col-sm-7 d-flex">
-                    <div className="d-flex flex-column">
-                      <div className="userInfo mb-3 d-flex align-items-center">
-                        <UserAvataComponent
-                          img="https://antimatter.vn/wp-content/uploads/2022/11/hinh-anh-gai-xinh-trung-quoc.jpg"
-                          lg={true}
-                        />
-                        <div className="info pl-3">
-                          <h5>
-                            Anh Bách Khỉ
-                            <span>25 phút trước</span>
-                          </h5>
+              {
+                reviewDatas?.map((item, index) => {
+                  return (
+                    <div className="review_row">
+                      <div className="row">
+                        <div className="col-sm-7 d-flex">
+                          <div className="d-flex flex-column">
+                            <div className="userInfo mb-3 d-flex align-items-center">
+                              <UserAvataComponent
+                                img="https://antimatter.vn/wp-content/uploads/2022/11/hinh-anh-gai-xinh-trung-quoc.jpg"
+                                lg={true}
+                              />
+                              <div className="info pl-3">
+                                <h5>
+                                  {item?.customerName}
+                                  <span>{item?.dateCreated}</span>
+                                </h5>
+                              </div>
+                            </div>
+                            <Rating
+                              name="read-only"
+                              value={item?.customerRating}
+                              precision={0.5}
+                              readOnly
+                            />
+                          </div>
                         </div>
+                        <div class="col-md-5 d-flex align-items-center">
+                          <div class="ml-auto">
+                            <Button className="btn-big btn-blue btn-lg btn-round">
+                              <FaReply />
+                              &nbsp; Reply
+                            </Button>
+                          </div>
+                        </div>
+                        <p
+                          class="mt-3 pl-4"
+                          style={{ color: '#403e57', fontSize: '1.6rem' }}
+                        >
+                          {item?.review}
+                        </p>
                       </div>
-                      <Rating
-                        name="read-only"
-                        value={4.5}
-                        precision={0.5}
-                        readOnly
-                      />
                     </div>
-                  </div>
-                  <div class="col-md-5 d-flex align-items-center">
-                    <div class="ml-auto">
-                      <Button className="btn-big btn-blue btn-lg btn-round">
-                        <FaReply />
-                        &nbsp; Reply
-                      </Button>
-                    </div>
-                  </div>
-                  <p
-                    class="mt-3 pl-4"
-                    style={{ color: '#403e57', fontSize: '1.6rem' }}
-                  >
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Omnis quo nostrum dolore fugiat ducimus labore debitis unde
-                    autem recusandae? Eius harum tempora quis minima, adipisci
-                    natus quod magni omnis quas.
-                  </p>
-                </div>
-              </div>
-              <div class="review_row reply">
-                <div class="row">
-                  <div class="col-sm-7 d-flex">
-                    <div class="d-flex flex-column">
-                      <div class="userInfo d-flex align-items-center mb-3">
-                        <div class="userImg lg">
-                          <UserAvataComponent lg={true} />
-                        </div>
-                        <div class="info pl-3">
-                          <h5>Miron Mahmud</h5>
-                          <span>25 minutes ago!</span>
-                        </div>
-                      </div>
-                      <Rating
-                        name="read-only"
-                        value={4.5}
-                        precision={0.5}
-                        readOnly
-                      />
-                    </div>
-                  </div>
-                  <div class="col-md-5 d-flex align-items-center">
-                    <div class="ml-auto">
-                      <Button className="btn-big btn-blue btn-lg btn-round">
-                        <FaReply />
-                        &nbsp; Reply
-                      </Button>
-                    </div>
-                  </div>
-                  <p class="mt-3">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Omnis quo nostrum dolore fugiat ducimus labore debitis unde
-                    autem recusandae? Eius harum tempora quis minima, adipisci
-                    natus quod magni omnis quas.
-                  </p>
-                </div>
-              </div>
-              <div class="review_row reply">
-                <div class="row">
-                  <div class="col-sm-7 d-flex">
-                    <div class="d-flex flex-column">
-                      <div class="userInfo d-flex align-items-center mb-3">
-                        <div class="userImg lg">
-                          <UserAvataComponent lg={true} />
-                        </div>
-                        <div class="info pl-3">
-                          <h5>Miron Mahmud</h5>
-                          <span>25 minutes ago!</span>
-                        </div>
-                      </div>
-                      <Rating
-                        name="read-only"
-                        value={4.5}
-                        precision={0.5}
-                        readOnly
-                      />
-                    </div>
-                  </div>
-                  <div class="col-md-5 d-flex align-items-center">
-                    <div class="ml-auto">
-                      <Button className="btn-big btn-blue btn-lg btn-round">
-                        <FaReply />
-                        &nbsp; Reply
-                      </Button>
-                    </div>
-                  </div>
-                  <p class="mt-3">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Omnis quo nostrum dolore fugiat ducimus labore debitis unde
-                    autem recusandae? Eius harum tempora quis minima, adipisci
-                    natus quod magni omnis quas.
-                  </p>
-                </div>
-              </div>
-              <div className="review_row">
-                <div className="row">
-                  <div className="col-sm-7 d-flex">
-                    <div className="d-flex flex-column">
-                      <div className="userInfo mb-3 d-flex align-items-center">
-                        <UserAvataComponent
-                          img="https://antimatter.vn/wp-content/uploads/2022/11/hinh-anh-gai-xinh-trung-quoc.jpg"
-                          lg={true}
-                        />
-                        <div className="info pl-3">
-                          <h5>
-                            Anh Bách Khỉ
-                            <span>25 phút trước</span>
-                          </h5>
-                        </div>
-                      </div>
-                      <Rating
-                        name="read-only"
-                        value={4.5}
-                        precision={0.5}
-                        readOnly
-                      />
-                    </div>
-                  </div>
-                  <div class="col-md-5 d-flex align-items-center">
-                    <div class="ml-auto">
-                      <Button className="btn-big btn-blue btn-lg btn-round">
-                        <FaReply />
-                        &nbsp; Reply
-                      </Button>
-                    </div>
-                  </div>
-                  <p
-                    class="mt-3 pl-4"
-                    style={{ color: '#403e57', fontSize: '1.6rem' }}
-                  >
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Omnis quo nostrum dolore fugiat ducimus labore debitis unde
-                    autem recusandae? Eius harum tempora quis minima, adipisci
-                    natus quod magni omnis quas.
-                  </p>
-                </div>
-              </div>
+                  );
+                })
+              }
             </div>
-            <h5 className="mt-4 mb-4">Review Reply Form</h5>
+            {/* <h5 className="mt-4 mb-4">Review Reply Form</h5>
             <form action="" className="review_form">
               <textarea placeholder="Wrire here"></textarea>
               <Button className="btn-blue">drop your replies</Button>
-            </form>
+            </form> */}
           </div>
         </div>
       </div>

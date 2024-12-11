@@ -4,7 +4,6 @@ import React from 'react';
 import { FaEye, FaPencilAlt } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import { Link } from 'react-router-dom';
-
 const ProductsTable = ({
   productList,
   loading,
@@ -68,7 +67,7 @@ const ProductsTable = ({
                   <td>
                     <div className="actions d-flex align-items-center">
                       <Link
-                        to={'/product/producDetails'}
+                        to={`/product/producDetails/${item.id}`}
                         aria-label="View product details"
                       >
                         <Button className="secondary" color="secondary">

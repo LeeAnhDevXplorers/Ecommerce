@@ -16,6 +16,7 @@ import ProductDetails from './Pages/ProductDetails/ProductDetails';
 import SignIn from './Pages/SignIn/SignIn';
 import SignUp from './Pages/SignUp/SignUp';
 import { fetchDataFromApi, postData } from './utils/api';
+import Orders from './Pages/Orders/Orders';
 
 const MyContext = createContext();
 
@@ -188,6 +189,7 @@ const App = () => {
           <Route path="/signIn" exact={true} element={<SignIn />} />
           <Route path="/signUp" exact={true} element={<SignUp />} />
           <Route path="/checkout" exact={true} element={<Checkout />} />
+          <Route path="/orders" exact={true} element={<Orders />} />
         </Routes>
         {isHeaderFooterShow === true && <Footer />}
 

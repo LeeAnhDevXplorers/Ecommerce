@@ -1,7 +1,7 @@
 import { Button } from '@mui/material';
 import Rating from '@mui/material/Rating';
+import { loadStripe } from '@stripe/stripe-js';
 import React, { useContext, useEffect, useState } from 'react';
-
 import { IoBagCheckOutline } from 'react-icons/io5';
 import { MdDeleteForever } from 'react-icons/md';
 import { Link } from 'react-router-dom';
@@ -24,8 +24,8 @@ const Cart = () => {
     setChangeQuantity(val);
   };
 
-  const removeItem = (_id) => {
-    deleteData(`/api/cart/${_id}`).then((res) => {
+  const removeItem = (id) => {
+    deleteData(`/api/cart/${id}`).then((res) => {
       context.setAlertBox({
         open: true,
         error: false,
@@ -44,7 +44,7 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"))
+    const user = JSON.parse(localStorage.getItem('user'));
     fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res) => {
       setCartData(res);
       setSelectedQuantity(res?.quantity);
@@ -53,7 +53,6 @@ const Cart = () => {
 
   function selectItem(item, quantityVal) {
     if (changeQuantity !== 0) {
-      console.log('Item selected:', item);
       if (!item || !quantityVal) {
         console.error('Invalid item or quantity');
         return;
@@ -69,14 +68,16 @@ const Cart = () => {
         price: item?.price || 0,
         quantity: quantityVal || 0,
         subTotal: parseInt(item?.price * quantityVal) || 0,
-        productId: item?.id || '',
+        productId: item?.productId || '',
         userId: user?.userId || '',
       };
 
       editData(`/api/cart/${item?._id}`, cartFields)
         .then((res) => {
           setIsLoading(false);
-          fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then(setCartData);
+          fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then(
+            setCartData
+          );
         })
         .catch((error) => {
           console.error('Error updating cart:', error);
@@ -84,8 +85,6 @@ const Cart = () => {
         });
     }
   }
-
-  // const selectItem = () => {};
 
   return (
     <>

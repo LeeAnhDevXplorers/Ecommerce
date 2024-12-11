@@ -2,7 +2,6 @@ import { Button } from '@mui/material';
 import Rating from '@mui/material/Rating';
 import Tooltip from '@mui/material/Tooltip';
 import React, { useContext, useEffect, useState } from 'react';
-import { FaBox } from 'react-icons/fa';
 import { FaCartShopping } from 'react-icons/fa6';
 import { IoIosHeartEmpty } from 'react-icons/io';
 import { MdCompareArrows } from 'react-icons/md';
@@ -10,11 +9,10 @@ import { useParams } from 'react-router-dom';
 import { MyContext } from '../../App';
 import ProductZoom from '../../Components/ProductZoom/ProductZoom';
 import QuantityBox from '../../Components/QuantityBox/QuantityBox';
-import { fetchDataFromApi } from '../../utils/api';
+import { fetchDataFromApi, postData } from '../../utils/api';
 import './ProductDetails.css';
 import Relatedproducts from './Relatedproducts/Relatedproducts';
 const ProductDetails = (props) => {
-  const [value, setValue] = React.useState(2);
   const context = useContext(MyContext);
   const [activeSize, setActiveSize] = useState(null);
   const [activeRam, setActiveRam] = useState(null);
@@ -22,9 +20,10 @@ const ProductDetails = (props) => {
   const [activeTabs, setActiveTabs] = useState(0);
   const [productData, setProductData] = useState([]);
   const [relatedProductData, setRelatedProductData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [productQuantity, setProductQuantity] = useState();
-  const [review, setReview] = useState();
   let [cartFields, setCartFields] = useState({});
+  const [reviewData, setReviewData] = useState([]);
 
   const setRamActive = (index) => {
     setActiveRam(index);
@@ -49,7 +48,11 @@ const ProductDetails = (props) => {
         setRelatedProductData(filteredData);
       });
     });
-  }, []);
+
+    fetchDataFromApi(`/api/productReview?productId=${id}`).then((res) => {
+      setReviewData(res);
+    });
+  }, [id]);
 
   const quantity = (val) => {
     setProductQuantity(val);
@@ -85,8 +88,10 @@ const ProductDetails = (props) => {
     cartFields.price = productData?.price;
     cartFields.quantity = productQuantity;
     cartFields.subTotal = parseInt(productData?.price * productQuantity);
-    cartFields.productId = productData?.id;
+    cartFields.productId = productData?._id;
     cartFields.userId = user?.userId;
+
+    console.log(cartFields);
 
     if (productData?.sizeName?.length > 0) {
       cartFields.selectedSize = productData?.sizeName?.[activeSize]?.sizeName;
@@ -101,21 +106,46 @@ const ProductDetails = (props) => {
 
     context.addtoCart(cartFields);
   };
-
+  const [rating, setRating] = useState(0);
+  const [reviews, setReviews] = useState({
+    productId: '',
+    customerName: '',
+    customerId: '',
+    review: '',
+    customerRating: 0,
+  });
   const onChangeInput = (e) => {
-    setReview(() => ({
-      ...review,
+    setReviews(() => ({
+      ...reviews,
       [e.target.name]: e.target.value,
     }));
   };
 
   const onChangeRating = (e) => {
-    alert(e.target.value);
+    setRating(e.target.value);
+    reviews.customerRating = e.target.value;
   };
 
-  const addReview = (e) => {
-    e.preventDefault();
-  };
+    const addReview = (e) => {
+      e.preventDefault();
+      const user = JSON.parse(localStorage.getItem('user'));
+      reviews.customerId = user?.userId;
+      reviews.productId = id;
+      reviews.customerName = user?.name;
+
+      console.log(reviews);
+      setIsLoading(true);
+      postData(`/api/productReview/add`, reviews).then((res) => {
+        setIsLoading(false);
+        setReviews({
+          review: "",
+          customerRating: 0
+        })
+        fetchDataFromApi(`/api/productReview?productId=${id}`).then((res) => {
+          setReviewData(res);
+        });
+      });
+    };
 
   return (
     <>
@@ -142,12 +172,11 @@ const ProductDetails = (props) => {
                   <div className="d-flex align-items-center">
                     <Rating
                       name="read-only"
-                      value={productData?.rating}
+                      value={reviewData?.customerRating}
                       readOnly
-                      precision={0.5}
                       size="small"
                     />
-                    <span className="text-light cursor ml-2">1 Review</span>
+                    <span className="text-light cursor ml-2">{reviewData?.length} Review</span>
                   </div>
                 </li>
               </ul>
@@ -329,35 +358,56 @@ const ProductDetails = (props) => {
                   <div className="row">
                     <div className="col-md-8">
                       <h2>Đánh giá của khách hàng</h2>
-                      <div className="card p-4 reviewsCard flex-row">
-                        <div className="image">
-                          <div className="rounded-circle">
-                            <img
-                              src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
-                              alt=""
-                            />
-                          </div>
-                          <span className="text-g d-block text-center font-weight-bold mt-2">
-                            Đình anh
-                          </span>
-                        </div>
-                        <div className="info pl-5">
-                          <div className="d-flex align-items-center w-100">
-                            <h5 className="text-light">13/1/2003</h5>
-                            <div className="ml-auto">
-                              <Rating
-                                name="read-only"
-                                value={5}
-                                readOnly
-                                size="small"
-                                precision={0.5}
-                                className="rating"
-                              />
+                      {reviewData?.slice(0)?.reverse()?.map((item, index) => {
+                        return (
+                          <div
+                            className="card p-4 reviewsCard flex-row"
+                            key={index}
+                          >
+                            <div className="image">
+                              <div className="rounded-circle">
+                                <img
+                                  src={`https://laurenashpole.github.io/react-inner-image-zoom/images/unsplash-1-large.jpg`}
+                                  alt=""
+                                />
+                              </div>
+                              <span className="text-g d-block text-center font-weight-bold mt-2">
+                                {item?.customerName}
+                              </span>
+                            </div>
+                            <div className="info pl-5">
+                              <div className="d-flex align-items-center w-100">
+                                <h5 className="text-light" style={{fontSize: "1.4rem"}}>
+                                  {new Date(
+                                    item?.dateCreated
+                                  ).toLocaleDateString('vi-VN')}
+                                  (
+                                  {new Date(
+                                    item?.dateCreated
+                                  ).toLocaleTimeString('vi-VN', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                  )
+                         
+                                </h5>
+
+                                <div className="ml-auto">
+                                  <Rating
+                                    name="read-only"
+                                    value={item?.customerRating}
+                                    readOnly
+                                    size="small"
+                                    className="rating"
+                                  />
+                                </div>
+                              </div>
+                              <p>{item?.review}</p>
                             </div>
                           </div>
-                          <p>Sản phẩm chất lươngj</p>
-                        </div>
-                      </div>
+                        );
+                      })}
+
                       <br className="res-hide" />
                       <br className="res-hide" />
                       <form className="reviewForm" onSubmit={addReview}>
@@ -367,11 +417,12 @@ const ProductDetails = (props) => {
                             className="form-control"
                             placeholder="Viết đánh giá"
                             name="review"
+                            value={reviews.review}
                             onChange={onChangeInput}
                           ></textarea>
                         </div>
                         <div className="row">
-                          <div className="col-md-6">
+                          {/* <div className="col-md-6">
                             <div className="form-group">
                               <input
                                 type="text"
@@ -381,12 +432,12 @@ const ProductDetails = (props) => {
                                 onChange={onChangeInput}
                               />
                             </div>
-                          </div>
+                          </div> */}
                           <div className="col-md-6">
                             <div className="form-group">
                               <Rating
                                 name="simple-controlled"
-                                value={value}
+                                value={reviews.customerRating}
                                 onChange={onChangeRating}
                               />
                             </div>
@@ -418,6 +469,7 @@ const ProductDetails = (props) => {
           )}
         </div>
       </section>
+      {isLoading === true && <div className="loading"></div>}
     </>
   );
 };

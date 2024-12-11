@@ -4,7 +4,9 @@ import express from 'express';
 import { connectDB } from './config/db.js';
 import cartRouter from './controllersRouter/cart.js';
 import categoryRouter from './controllersRouter/categories.js'; // Adjust the path as needed
+import ordersRouter from './controllersRouter/orders.js';
 import pRamRouter from './controllersRouter/productRams.js';
+import pReviewRouter from './controllersRouter/productReviews.js';
 import productRouter from './controllersRouter/products.js';
 import psizeRouter from './controllersRouter/productSize.js';
 import pWeightRouter from './controllersRouter/productWeigth.js';
@@ -28,6 +30,8 @@ app.use('/api/prams', pRamRouter);
 app.use('/api/psize', psizeRouter);
 app.use('/api/user', userRouter);
 app.use('/api/cart', cartRouter);
+app.use('/api/orders', ordersRouter);
+app.use('/api/productReview', pReviewRouter);
 
 // Connect to MongoDB
 connectDB();

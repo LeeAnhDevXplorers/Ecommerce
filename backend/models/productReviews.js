@@ -6,7 +6,7 @@ const productReviewsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    customerName: { 
+    customerName: {
       type: String,
       required: true,
     },
@@ -17,27 +17,20 @@ const productReviewsSchema = new mongoose.Schema(
     review: {
       type: String,
       required: true,
-      default: ""
+      default: '',
     },
     customerRating: {
       type: String,
       required: true,
-      default: 1
+      default: 1,
     },
-    review: {
-      type: String,
-      required: true,
-      default: ""
+    dateCreated: {
+      type: Date,
+      default: Date.now,
     },
-    review: {
-      type: String,
-      required: true,
-      default: ""
-    }
   },
   { timestamps: true }
 ); // Adds createdAt and updatedAt automatically
-
 
 productReviewsSchema.virtual('id').get(function () {
   return this._id.toHexString();
@@ -47,4 +40,7 @@ productReviewsSchema.set('toJSON', {
   virtuals: true,
 });
 
-export const ProductReviews = mongoose.model('ProductReviews', productReviewsSchema);
+export const ProductReviews = mongoose.model(
+  'ProductReviews',
+  productReviewsSchema
+);

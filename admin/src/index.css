@@ -228,3 +228,35 @@ span.MuiChip-label.MuiChip-labelMedium.css-1dybbl5-MuiChip-label {
 .css-rizt0-MuiTypography-root {
   font-size: 1.4rem !important;
 }
+
+
+.order-table th,
+.order-table td {
+  white-space: nowrap;
+  font-size: 1.6rem;
+  vertical-align: middle;
+}
+
+.order-table td:nth-child(1),
+.order-table td:nth-child(2),
+.order-table td:nth-child(3) {
+  color: blue;
+}
+
+.order-table td:nth-child(3) {
+  cursor: pointer;
+}
+
+.order-table .img {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+}
+
+.order-table .img img {
+  width: 100%;
+}
+
+.css-10d30g3-MuiPaper-root-MuiDialog-paper {
+  max-width: 1000px !important;
+}

@@ -38,8 +38,8 @@
 .productDetailsSection .productInfo .name {
   width: 82%;
   flex: 0 0 82%;
-  font-weight: bold;
-  font-size: 1.8rem;
+  font-weight: 600;
+  font-size: 1.6rem;
   color: #5e5d72;
   margin-left: 10px;
 }

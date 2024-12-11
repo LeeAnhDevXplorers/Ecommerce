@@ -11,33 +11,34 @@ import Category from './Pages/Category/Category';
 import Home from './Pages/Home/Home';
 import Login from './Pages/Login/Login';
 // import ProductDetails from './Pages/Products/ProductDetails';
-import Products from './Pages/Products/Products'; 
+import Products from './Pages/Products/Products';
 // import ProductUpload from './Pages/Products/ProductUpload';
 import CategoryAdd from './Pages/Category/AddCategory/CategoryAdd';
 import AddSubcat from './Pages/Category/AddSubcat/AddSubcat';
 import SubCategory from './Pages/Category/SubCategory';
+import Orders from './Pages/Orders/Orders';
 import ProductDetails from './Pages/Products/ProductDetails';
 import ProductRams from './Pages/Products/ProductRams';
 import ProductUpload from './Pages/Products/ProductUpload';
 import SignUp from './Pages/SignUp/SignUp';
 
 const MyContext = createContext();
-const App = () => { 
+const App = () => {
   const isAuthPage =
     location.pathname === '/login' || location.pathname === '/signup';
   const [baseUrl, setBaseUrl] = useState('http://localhost:4000');
   const [progress, setProgress] = useState(0);
-  const [isLogin, setIsLogin] = useState(false)
+  const [isLogin, setIsLogin] = useState(false);
   const [alertBox, setAlertBox] = useState({
     msg: '',
     error: false,
     open: false,
   });
   const [user, setUser] = useState({
-    name: "",
-    email: "",
-    userId: ""
-  })
+    name: '',
+    email: '',
+    userId: '',
+  });
   const [isToggleSiderBar, setisToggleSiderBar] = useState(false);
   const [isHide, setisHide] = useState(true);
   const [themeMode, setThemeMode] = useState(true);
@@ -57,7 +58,7 @@ const App = () => {
     user,
     setUser,
     isLogin,
-    setIsLogin
+    setIsLogin,
   };
   useEffect(() => {
     if (themeMode === true) {
@@ -72,15 +73,15 @@ const App = () => {
   }, [themeMode]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    if(token !== null && token !== "" && token !== undefined) {
-      setIsLogin(true)
-      const userData = JSON.parse(localStorage.getItem("user"))
-      setUser(userData)
-    }else {
-      setIsLogin(false)
+    const token = localStorage.getItem('token');
+    if (token !== null && token !== '' && token !== undefined) {
+      setIsLogin(true);
+      const userData = JSON.parse(localStorage.getItem('user'));
+      setUser(userData);
+    } else {
+      setIsLogin(false);
     }
-  }, [isLogin])
+  }, [isLogin]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -139,7 +140,7 @@ const App = () => {
                 <Route path="/login" exact={true} element={<Login />} />
                 <Route path="/signup" exact={true} element={<SignUp />} />
                 <Route
-                  path="product/producDetails"
+                  path="product/producDetails/:id"
                   exact={true}
                   element={<ProductDetails />}
                 />
@@ -168,7 +169,6 @@ const App = () => {
                   exact={true}
                   element={<AddSubcat />}
                 />
-
                 <Route
                   path="/category/subcategory"
                   exact={true}
@@ -178,6 +178,16 @@ const App = () => {
                   path="/product/productrams"
                   exact={true}
                   element={<ProductRams />}
+                />
+                <Route
+                  path="/product/productrams"
+                  exact={true}
+                  element={<ProductRams />}
+                />
+                <Route
+                  path="/product/orders"
+                  exact={true}
+                  element={<Orders />}
                 />
               </Routes>
             </div>

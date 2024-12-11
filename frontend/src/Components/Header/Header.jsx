@@ -118,12 +118,14 @@ const Header = () => {
                           <Avatar /> My account
                         </MenuItem>
                         <Divider />
-                        <MenuItem onClick={handleClose}>
-                          <ListItemIcon>
-                            <FactCheckIcon fontSize="large" />
-                          </ListItemIcon>
-                          Orders
-                        </MenuItem>
+                        <Link to="/orders">
+                          <MenuItem onClick={handleClose}>
+                            <ListItemIcon>
+                              <FactCheckIcon fontSize="large" />
+                            </ListItemIcon>
+                            Orders
+                          </MenuItem>
+                        </Link>
                         <MenuItem onClick={handleClose}>
                           <ListItemIcon>
                             <FavoriteIcon fontSize="large" />

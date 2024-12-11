@@ -1,18 +1,20 @@
-import Button from '@mui/material/Button';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+import { Button } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { BiSolidDashboard } from 'react-icons/bi';
 import { FaAngleRight } from 'react-icons/fa';
 import { FaProductHunt } from 'react-icons/fa6';
 import { HiOutlineLogout } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
 import { MyContext } from '../../App';
 import './SideBar.css';
 
 const SideBar = () => {
   const [activeTab, setActiveTab] = useState(null);
   const [isToggleSubmenu, setIsToggleSubmenu] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const context = useContext(MyContext);
+  const history = useNavigate();
   const handleTabClick = (index) => {
     if (activeTab === index) {
       setIsToggleSubmenu(!isToggleSubmenu);
@@ -21,6 +23,15 @@ const SideBar = () => {
       setIsToggleSubmenu(true);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token !== null && token !== '' && token !== undefined) {
+      setIsLogin(true);
+    } else {
+      history('/login');
+    }
+  }, []);
 
   return (
     <div className="sideBar">
@@ -35,9 +46,7 @@ const SideBar = () => {
                 <BiSolidDashboard />
               </span>
               Dashboard
-              <span className="arrow">
-                <FaAngleRight />
-              </span>
+              <span className="arrow"></span>
             </Button>
           </Link>
         </li>
@@ -109,86 +118,20 @@ const SideBar = () => {
             </ul>
           </div>
         </li>
-        {/* <li>
-          <Link>
-            <Button
-              className={`w-100 ${activeTab === 2 ? 'act' : ''}`}
-              onClick={() => handleTabClick(2)}
-            >
-              <span className="icon">
-                <FaCartArrowDown />
-              </span>
-              Đặt hàng
-              <span className="arrow">
-                <FaAngleRight />
-              </span>
-            </Button>
-          </Link>
-        </li>
         <li>
-          <Link>
-            <Button
-              className={`w-100 ${activeTab === 3 ? 'act' : ''}`}
-              onClick={() => handleTabClick(3)}
-            >
-              <span className="icon">
-                <FaRegUserCircle />
-              </span>
-              Tài khoản người dùng
-              <span className="arrow">
-                <FaAngleRight />
-              </span>
-            </Button>
-          </Link>
-        </li>
-        <li>
-          <Link>
+          <Link to={'/product/orders'}>
             <Button
               className={`w-100 ${activeTab === 4 ? 'act' : ''}`}
               onClick={() => handleTabClick(4)}
             >
               <span className="icon">
-                <RiMessengerFill />
+                <FactCheckIcon fontSize="large" />
               </span>
-              Tin nhắn
-              <span className="arrow">
-                <FaAngleRight />
-              </span>
+              Orders
+              <span className="arrow"></span>
             </Button>
           </Link>
         </li>
-        <li>
-          <Link>
-            <Button
-              className={`w-100 ${activeTab === 5 ? 'act' : ''}`}
-              onClick={() => handleTabClick(5)}
-            >
-              <span className="icon">
-                <FaBell />
-              </span>
-              Thông báo
-              <span className="arrow">
-                <FaAngleRight />
-              </span>
-            </Button>
-          </Link>
-        </li>
-        <li>
-          <Link>
-            <Button
-              className={`w-100 ${activeTab === 6 ? 'act' : ''}`}
-              onClick={() => handleTabClick(6)}
-            >
-              <span className="icon">
-                <IoSettingsOutline />
-              </span>
-              Cài đặt
-              <span className="arrow">
-                <FaAngleRight />
-              </span>
-            </Button>
-          </Link>
-        </li> */}
       </ul>
       <br />
       <hr />

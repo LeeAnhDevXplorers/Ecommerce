@@ -1,5 +1,5 @@
 import express from 'express';
-import { Cart } from '../models/cart.js';
+import { Cart } from '../models/cart.js'; 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
@@ -26,37 +26,46 @@ router.get('/cound', async (req, res) => {
 
 // Route tạo mới category với ảnh, giữ lại file trong thư mục 'uploads'
 router.post('/add', async (req, res) => {
-  const cartItem = await Cart.find({ productId: req.body.productId });
-  if (cartItem.length === 0 ) {
-    try {
-      let cartList = new Cart({
-        productTitle: req.body.productTitle,
-        image: req.body.image,
-        rating: req.body.rating,
-        price: req.body.price,
-        quantity: req.body.quantity,
-        subTotal: req.body.subTotal,
-        productId: req.body.productId,
-        userId: req.body.userId,
-      });
+  const { productId, productTitle, image, rating, price, quantity, subTotal, userId } = req.body;
 
-      cartList = await cartList.save();
+  try {
+    // Kiểm tra sản phẩm đã tồn tại trong giỏ hàng chưa
+    const existingCartItem = await Cart.findOne({ productId });
 
-      return res.status(201).json({
-        message: 'Category created successfully',
-        cartList,
-        success: true,
-      });
-    } catch (err) {
-      return res.status(500).json({
-        error: err.message || 'Internal server error',
-        success: false,
+    if (existingCartItem) {
+      return res.status(409).json({
+        status: false,
+        msg: 'Product already added in the cart',
       });
     }
-  } else {
-    res.status(401).json({status: false, msg: 'Product already added in the cart ' });
+
+    // Tạo sản phẩm mới trong giỏ hàng
+    const newCartItem = new Cart({
+      productTitle,
+      image,
+      rating,
+      price,
+      quantity,
+      subTotal,
+      productId,
+      userId,
+    });
+
+    const savedCartItem = await newCartItem.save();
+
+    return res.status(201).json({
+      message: 'Product added to cart successfully',
+      cartItem: savedCartItem,
+      success: true,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: err.message || 'Internal server error',
+      success: false,
+    });
   }
 });
+
 router.delete('/:id', async (req, res) => {
   try {
     const cartItem = await Cart.findById(req.params.id);
